@@ -1,0 +1,1558 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Angelreise Manager</title>
+<style>
+:root{
+  --bg:#07111f;--bg2:#0b1728;--card:rgba(15,30,52,.82);--card2:rgba(20,38,64,.78);
+  --text:#eef6ff;--muted:#93a6bd;--line:rgba(148,163,184,.22);
+  --accent:#3b82f6;--accent2:#60a5fa;--danger:#ef4444;--ok:#22c55e;
+  --warning:#f59e0b;--purple:#8b5cf6;--cyan:#06b6d4;--soft:rgba(255,255,255,.06);
+  --head:#020617;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  background:
+    radial-gradient(circle at top right,rgba(59,130,246,.18),transparent 35%),
+    linear-gradient(180deg,#07111f,#020817 70%);
+  color:var(--text);
+}
+header{
+  background:linear-gradient(135deg,rgba(2,6,23,.96),rgba(7,17,31,.85));
+  color:#fff;padding:22px 28px;border-bottom:1px solid var(--line);
+  position:relative;overflow:hidden;
+}
+header:before{
+  content:"";position:absolute;inset:0;
+  background:
+    linear-gradient(90deg,rgba(2,6,23,.70),rgba(2,6,23,.15)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 360'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0' x2='1'%3E%3Cstop stop-color='%230b1220'/%3E%3Cstop offset='1' stop-color='%23f97316'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='360' fill='url(%23s)'/%3E%3Cpath d='M0 275 L105 145 L175 220 L275 85 L390 260 L520 120 L660 275 L800 95 L930 270 L1045 135 L1200 270 L1200 360 L0 360Z' fill='%23111827'/%3E%3Cpath d='M0 295 C180 260 280 330 430 300 C590 260 720 325 875 290 C1000 260 1100 305 1200 280 L1200 360 L0 360Z' fill='%230f2740' opacity='.9'/%3E%3Crect x='120' y='230' width='90' height='55' fill='%23991b1b'/%3E%3Cpath d='M110 230 L165 190 L220 230Z' fill='%2327272a'/%3E%3Cpath d='M760 250 q50 -65 120 0 h-120Z' fill='%230f172a'/%3E%3Crect x='835' y='218' width='85' height='38' fill='%23e5e7eb' opacity='.8'/%3E%3Cpath d='M780 255 q80 35 165 0 q-20 45 -145 43Z' fill='%23020b16'/%3E%3C/svg%3E");
+  background-size:cover;background-position:center;opacity:.55;
+}
+header h1,header p{position:relative;z-index:1}
+header h1{margin:0 0 6px;font-size:28px;letter-spacing:.2px}
+header p{margin:0;color:#dbeafe}
+main{max-width:1440px;margin:0 auto;padding:18px}
+#appShell{
+  display:grid;grid-template-columns:245px 1fr;gap:18px;max-width:1500px;
+}
+#appShell.hidden-app{display:none!important}
+#appShell>.card:first-child{
+  grid-column:1/-1;margin-bottom:0;background:linear-gradient(135deg,rgba(15,23,42,.9),rgba(15,30,52,.72));
+}
+.tabs{
+  grid-column:1;grid-row:2 / span 20;display:flex;flex-direction:column;gap:8px;
+  background:linear-gradient(180deg,rgba(2,12,27,.98),rgba(3,16,31,.92));
+  border:1px solid var(--line);border-radius:22px;padding:18px;margin:0;
+  position:sticky;top:14px;height:calc(100vh - 28px);
+}
+.tabs:before{
+  content:"ANGELREISE\A MANAGER 🇳🇴";white-space:pre-line;font-weight:900;letter-spacing:1.4px;
+  color:#f8fafc;font-size:18px;line-height:1.1;margin:6px 4px 24px;display:block;
+}
+.tab{
+  border:0;border-radius:12px;padding:12px 14px;text-align:left;
+  background:transparent;color:#cbd5e1;font-weight:750;cursor:pointer;
+  display:flex;align-items:center;gap:10px;transition:.18s;
+}
+.tab:hover{background:rgba(96,165,250,.10);color:#fff}
+.tab.active{background:linear-gradient(135deg,#1d4ed8,#315fcc);color:#fff;box-shadow:0 10px 24px rgba(37,99,235,.28)}
+.tab::before{content:attr(data-icon);display:inline-flex;align-items:center;justify-content:center;width:22px;min-width:22px;font-size:16px}
+.tabpage{grid-column:2;min-width:0}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:16px;
+  box-shadow:0 18px 45px rgba(0,0,0,.25);backdrop-filter:blur(14px);
+}
+.grid{display:grid;grid-template-columns:1fr;gap:16px}@media(min-width:1050px){.grid.two{grid-template-columns:1fr 1fr}.grid.three{grid-template-columns:repeat(3,1fr)}}
+h2{margin:0 0 14px;font-size:20px}h3{margin:18px 0 10px;font-size:15px;color:#e5f0ff}
+label{display:block;font-size:12px;color:var(--muted);margin:9px 0 5px;text-transform:uppercase;letter-spacing:.04em}
+input,select,textarea{
+  width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:13px;
+  font:inherit;background:rgba(2,6,23,.42);color:var(--text);outline:none;
+}
+input:focus,select:focus,textarea:focus{border-color:rgba(96,165,250,.8);box-shadow:0 0 0 3px rgba(59,130,246,.18)}
+option{background:#0f172a;color:#fff}
+textarea{min-height:88px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+button{
+  border:0;border-radius:13px;padding:11px 14px;background:linear-gradient(135deg,#2563eb,#3b82f6);
+  color:#fff;font-weight:800;cursor:pointer;box-shadow:0 8px 18px rgba(37,99,235,.25)
+}
+button.ok{background:linear-gradient(135deg,#15803d,#22c55e)}button.danger{background:linear-gradient(135deg,#b91c1c,#ef4444)}button.secondary{background:linear-gradient(135deg,#334155,#64748b)}.ghost{background:rgba(59,130,246,.14);color:#bfdbfe;box-shadow:none}
+.hidden{display:none!important}.small{font-size:12px;color:var(--muted)}.notice{background:rgba(8,145,178,.16);border:1px solid rgba(103,232,249,.28);color:#dff9ff;border-radius:14px;padding:12px;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;overflow:hidden}th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{font-size:12px;color:#a8bed6;background:rgba(255,255,255,.04)}.right{text-align:right}
+.total{font-size:30px;font-weight:900}.badge{display:inline-block;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin:4px}.pill{display:inline-block;background:rgba(59,130,246,.15);color:#bfdbfe;border:1px solid rgba(96,165,250,.2);border-radius:999px;padding:3px 9px;margin:2px;font-size:12px}
+.splitbox{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;padding:10px}.check{display:flex;align-items:center;gap:7px}.check input{width:auto}
+#loginGate{
+  min-height:calc(100vh - 86px);display:flex;align-items:center;justify-content:center;padding:24px;
+  background:
+    linear-gradient(180deg,rgba(2,6,23,.15),rgba(2,6,23,.85)),
+    radial-gradient(circle at 70% 20%,rgba(249,115,22,.22),transparent 35%),
+    radial-gradient(circle at 20% 25%,rgba(59,130,246,.22),transparent 35%);
+}
+.login-panel{
+  width:100%;max-width:500px;background:rgba(5,15,30,.82);border:1px solid rgba(226,232,240,.18);
+  border-radius:26px;padding:28px;box-shadow:0 30px 80px rgba(0,0,0,.45);backdrop-filter:blur(16px)
+}
+.login-logo{
+  width:82px;height:82px;border-radius:22px;background:linear-gradient(135deg,#0f172a,#1d4ed8);
+  display:flex;align-items:center;justify-content:center;font-size:38px;margin-bottom:16px;
+  box-shadow:0 16px 35px rgba(37,99,235,.35)
+}
+.login-panel h2{font-size:30px;margin-bottom:8px}
+body.app-authenticated #loginGate{display:none!important}
+body:not(.app-authenticated) #appShell{display:none!important}
+body.role-participant .leader-only{display:none!important}
+#kosten .grid.two,#fang .grid.two,#anzahlungen .grid.two,#profil .grid.two{align-items:start}
+#abrechnung .grid.three .card:nth-child(1){background:linear-gradient(135deg,rgba(37,99,235,.35),rgba(15,30,52,.85))}
+#abrechnung .grid.three .card:nth-child(2){background:linear-gradient(135deg,rgba(34,197,94,.28),rgba(15,30,52,.85))}
+#abrechnung .grid.three .card:nth-child(3){background:linear-gradient(135deg,rgba(139,92,246,.30),rgba(15,30,52,.85))}
+@media(max-width:950px){
+  main{padding:10px}#appShell{display:block}.tabs{position:fixed;left:10px;right:10px;bottom:10px;top:auto;height:auto;z-index:50;flex-direction:row;overflow:auto;border-radius:24px;padding:8px}.tabs:before{display:none}.tab{min-width:96px;justify-content:center;font-size:12px;padding:10px}.tabpage{padding-bottom:90px}.row,.row3{grid-template-columns:1fr}
+}
+@media print{header,.tabs,.no-print,form,button,#loginGate{display:none!important}main,#appShell{display:block;max-width:none}.card{box-shadow:none;border:0;background:white;color:black}}
+
+body.app-authenticated #loginGate{display:none!important;}
+body:not(.app-authenticated) #appShell{display:none!important;}
+
+.fish-card{display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:14px;padding:10px;margin:6px 0}
+.fish-img{width:64px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:30px;background:linear-gradient(135deg,rgba(59,130,246,.22),rgba(6,182,212,.18));border:1px solid rgba(255,255,255,.12)}
+.mapbox{min-height:360px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(135deg,rgba(8,47,73,.88),rgba(15,23,42,.92));position:relative;overflow:hidden}
+.mapbox:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 35% 45%,rgba(34,197,94,.25),transparent 11%),radial-gradient(circle at 55% 55%,rgba(59,130,246,.25),transparent 14%),radial-gradient(circle at 65% 35%,rgba(14,165,233,.22),transparent 12%);opacity:.9}
+.map-point{position:absolute;transform:translate(-50%,-50%);background:#f97316;color:white;border-radius:999px;padding:5px 8px;font-size:12px;font-weight:900;box-shadow:0 8px 18px rgba(0,0,0,.35)}
+.report-preview{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:16px;padding:14px;line-height:1.55}
+textarea.big{min-height:140px}
+@media print{.mapbox{border:1px solid #ddd;background:white;color:black}.fish-img{border:1px solid #ddd}}
+
+
+.dashboard-hero{background:linear-gradient(135deg,rgba(14,116,144,.28),rgba(30,64,175,.30)),var(--card);border:1px solid var(--line);border-radius:24px;padding:20px;margin-bottom:16px;position:relative;overflow:hidden}
+.dashboard-hero:after{content:"";position:absolute;right:-60px;top:-80px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(96,165,250,.24),transparent 65%)}
+.dashboard-title{font-size:30px;font-weight:900;margin:0 0 6px}
+.metric-card{background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:18px;padding:16px;min-height:110px}
+.metric-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.metric-value{font-size:28px;font-weight:900;margin-top:8px}
+.metric-sub{font-size:12px;color:var(--muted);margin-top:5px}
+.quick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.quick-card{background:rgba(59,130,246,.12);border:1px solid rgba(96,165,250,.20);border-radius:16px;padding:13px;cursor:pointer}
+.quick-card strong{display:block;margin-bottom:4px}
+.timeline-item{display:flex;gap:10px;border-bottom:1px solid var(--line);padding:10px 0}
+.timeline-dot{width:12px;height:12px;border-radius:999px;background:#60a5fa;margin-top:4px;flex:0 0 auto}
+.rank-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding:10px 0}
+.rank-left{display:flex;align-items:center;gap:10px}.rank-badge{width:30px;height:30px;border-radius:999px;background:rgba(96,165,250,.22);display:flex;align-items:center;justify-content:center;font-weight:900}
+.progress{height:10px;background:rgba(255,255,255,.10);border-radius:999px;overflow:hidden;margin-top:9px}.progress span{display:block;height:100%;background:linear-gradient(90deg,#22c55e,#60a5fa);border-radius:999px}
+
+
+.fish-img{overflow:hidden}
+.fish-img svg{width:100%;height:100%;display:block}
+.fish-photo{width:90px;height:58px;border-radius:14px;overflow:hidden;background:rgba(255,255,255,.06);border:1px solid var(--line);flex:0 0 auto}
+.fish-photo svg{width:100%;height:100%;display:block}
+.map-fish-mini{display:inline-flex;width:54px;height:36px;vertical-align:middle;margin-right:8px}
+.map-fish-mini svg{width:100%;height:100%}
+
+
+/* ===== V20 Live: Smartphone-Optimierung ===== */
+@media(max-width:720px){
+  header{padding:18px 16px}
+  header h1{font-size:22px}
+  main{padding:8px}
+  #appShell>.card:first-child{border-radius:18px;margin-bottom:10px}
+  .dashboard-title{font-size:23px}
+  .metric-value{font-size:23px}
+  .metric-card{min-height:92px;padding:13px}
+  .card{border-radius:17px;padding:14px;margin-bottom:12px}
+  .tabs{left:6px;right:6px;bottom:6px;gap:6px;padding:7px}
+  .tab{min-width:78px;font-size:11px;padding:9px 8px;flex-direction:column;gap:3px}
+  .tab::before{font-size:18px;width:auto;min-width:0}
+  input,select,textarea{font-size:16px;padding:11px}
+  button{width:100%;justify-content:center}
+  .actions button{flex:1 1 100%}
+  .quick-grid{grid-template-columns:1fr 1fr}
+  .row,.row3{gap:8px}
+  table{font-size:12px}
+  th,td{padding:7px}
+  .fish-photo{width:78px;height:50px}
+  .mapbox{min-height:290px}
+}
+@media(max-width:420px){
+  .quick-grid{grid-template-columns:1fr}
+  .tab{min-width:72px}
+  .login-panel{padding:20px;border-radius:22px}
+  .login-logo{width:68px;height:68px}
+}
+
+.cloud-ok{color:#86efac}.cloud-warn{color:#fde68a}.cloud-bad{color:#fca5a5}
+</style>
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-norway.svg">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Angelreise">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<header><h1 id="appTitle">Angelreise Manager</h1><p>Norwegen • Planung • Fangerfassung • Abrechnung</p></header>
+
+<section id="loginGate">
+  <div class="login-panel">
+    <div class="login-logo">🎣</div>
+    <h2>Angelreise Manager</h2>
+    <p class="small">Bitte anmelden. Der Teilnehmer-Login zeigt aus Datenschutzgründen nur Kürzel, keine vollständigen Namen.</p>
+    <div class="notice"><strong>Willkommen</strong><br>Bitte melden Sie sich mit Ihrem Zugang an.</div>
+    <label>Reise</label>
+    <select id="gateTripSelect"></select>
+    <div class="row">
+      <div>
+        <label>Rolle</label>
+        <select id="gateLoginRole">
+          <option value="leader">Reiseleiter</option>
+          <option value="participant">Teilnehmer</option>
+        </select>
+      </div>
+      <div>
+        <label>Teilnehmer</label>
+        <select id="gateLoginParticipant"></select>
+      </div>
+    </div>
+    <label>PIN</label>
+    <input id="gateLoginPin" type="password" inputmode="numeric" placeholder="Passwort eingeben">
+    <div class="actions">
+      <button onclick="gateLogin()">Anmelden</button>
+      <button class="secondary" onclick="resetAppStartupV197()">Lokale Daten neu laden</button>
+    </div>
+    <div id="gateLoginMessage" class="small" style="margin-top:10px;"></div>
+  </div>
+</section>
+
+<main id="appShell" class="hidden-app">
+<div class="card no-print">
+  <div class="row">
+    <div><label>Reise auswählen</label><select id="tripSelect"></select></div>
+    <div><label>Reisename</label><input id="tripName"><div class="actions"><button onclick="renameTrip()">Umbenennen</button><button class="ok" onclick="newTrip()">Neue Reise</button></div></div>
+  </div>
+  <div id="loginStatusText" class="small"></div><div id="cloudSyncStatus" class="small"></div><div id="cloudRealtimeStatus" class="small"></div><div class="actions"><button class="secondary" onclick="gateLogout()">Abmelden</button><button class="ghost" onclick="cloudLoadNow()">Cloud laden</button><button class="ghost" onclick="cloudSaveNow()">Cloud speichern</button></div>
+</div>
+
+
+<div class="card" id="premiumDashboard">
+  <div class="row">
+    <div>
+      <h2>Willkommen zurück!</h2>
+      <p class="small">Dein Angelabenteuer in Norwegen – Übersicht, Fänge, Zahlungen und Neuigkeiten.</p>
+    </div>
+    <div class="right">
+      <span class="badge">🇳🇴 Norwegen</span>
+      <span class="badge" id="dashDate"></span>
+    </div>
+  </div>
+  <div class="grid three" style="margin-top:12px;">
+    <div class="card"><div class="small">Teilnehmer</div><div id="dashPeople" class="total">0</div></div>
+    <div class="card"><div class="small">Fänge</div><div id="dashFish" class="total">0</div></div>
+    <div class="card"><div class="small">Gesamtkosten</div><div id="dashCosts" class="total">0 €</div></div>
+  </div>
+</div>
+
+<div class="tabs no-print">
+  
+  <button class="tab active" data-icon="🏠" onclick="showTab('dashboard',this)">Dashboard</button>
+  <button class="tab" data-icon="👥" onclick="showTab('teilnehmer',this)">Teilnehmer</button><button class="tab leader-only" data-icon="🔐" onclick="showTab('rollen',this)">Rollen</button>
+  <button class="tab" data-icon="🪪" onclick="showTab('profil',this)">Profil</button>
+  <button class="tab" data-icon="💳" onclick="showTab('kosten',this)">Kosten</button>
+  <button class="tab" data-icon="💶" onclick="showTab('anzahlungen',this)">Anzahlungen</button>
+  <button class="tab" data-icon="🎣" onclick="showTab('fang',this)">Fänge</button>
+  <button class="tab" data-icon="🗺️" onclick="showTab('karte',this)">Fangkarte</button>
+  <button class="tab" data-icon="📘" onclick="showTab('doku',this)">Reisedoku</button>
+  <button class="tab" data-icon="👤" onclick="showTab('meinbereich',this)">Mein Bereich</button>
+  <button class="tab" data-icon="🔔" onclick="showTab('news',this)">Neuigkeiten</button>
+  <button class="tab" data-icon="📊" onclick="showTab('abrechnung',this)">Abrechnung</button>
+  <button class="tab" data-icon="📦" onclick="showTab('export',this)">Export</button>
+  <button class="tab" data-icon="☁️" onclick="showTab('backup',this)">Backup/Push</button>
+</div>
+
+
+
+<section id="dashboard" class="tabpage">
+  <div class="dashboard-hero">
+    <div class="row">
+      <div>
+        <div class="dashboard-title">🇳🇴 Angelreise Dashboard</div>
+        <p class="small">Alles Wichtige zur Reise auf einen Blick: Teilnehmer, Kosten, Fänge, Zahlungen, Neuigkeiten und nächste Schritte.</p>
+      </div>
+      <div>
+        <label>Abreisedatum für Countdown</label>
+        <input id="tripStartDate" type="date">
+        <div class="actions leader-only"><button onclick="saveTripStartDate()">Abreisedatum speichern</button></div><div id="tripStartDateHint" class="small"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid three">
+    <div class="metric-card"><div class="metric-label">Countdown</div><div id="dashCountdown" class="metric-value">–</div><div class="metric-sub">bis zur Abreise</div></div>
+    <div class="metric-card"><div class="metric-label">Teilnehmer</div><div id="dashParticipantsFull" class="metric-value">0</div><div class="metric-sub">in dieser Reise</div></div>
+    <div class="metric-card"><div class="metric-label">Fänge</div><div id="dashCatchesFull" class="metric-value">0</div><div class="metric-sub">erfasste Fische</div></div>
+  </div>
+
+  <div class="grid three">
+    <div class="metric-card"><div class="metric-label">Gesamtkosten</div><div id="dashTotalCostsFull" class="metric-value">0 €</div><div class="metric-sub">alle Kostenposten</div></div>
+    <div class="metric-card"><div class="metric-label">Anzahlungen</div><div id="dashDepositsFull" class="metric-value">0 €</div><div class="metric-sub">eingegangene Zahlungen</div></div>
+    <div class="metric-card"><div class="metric-label">Offene Restkosten</div><div id="dashOpenCostsFull" class="metric-value">0 €</div><div class="progress"><span id="dashPaymentProgress" style="width:0%"></span></div></div>
+  </div>
+
+  <div class="grid two">
+    <div class="card">
+      <h2>Schnellaktionen</h2>
+      <div class="quick-grid">
+        <div class="quick-card" onclick="goDashboardTab('kosten')"><strong>💶 Kosten</strong><span class="small">neue Ausgabe erfassen</span></div>
+        <div class="quick-card" onclick="goDashboardTab('anzahlungen')"><strong>💳 Anzahlungen</strong><span class="small">Zahlung eintragen</span></div>
+        <div class="quick-card" onclick="goDashboardTab('fang')"><strong>🎣 Fang</strong><span class="small">Fang erfassen</span></div>
+        <div class="quick-card" onclick="goDashboardTab('karte')"><strong>🗺️ Fangkarte</strong><span class="small">GPS-Punkte ansehen</span></div>
+        <div class="quick-card" onclick="goDashboardTab('doku')"><strong>📘 Reisedoku</strong><span class="small">Bericht schreiben</span></div>
+        <div class="quick-card" onclick="goDashboardTab('abrechnung')"><strong>📊 Abrechnung</strong><span class="small">Saldo prüfen</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Status / Aufgaben</h2>
+      <div id="dashboardChecklist"></div>
+    </div>
+  </div>
+
+  <div class="grid two">
+    <div class="card">
+      <h2>Top-Angler</h2>
+      <div id="dashboardTopAnglers"></div>
+    </div>
+    <div class="card">
+      <h2>Größte Fische</h2>
+      <div id="dashboardBiggestFish"></div>
+    </div>
+  </div>
+
+  <div class="grid two">
+    <div class="card">
+      <h2>Letzte Neuigkeiten</h2>
+      <div id="dashboardNews"></div>
+    </div>
+    <div class="card">
+      <h2>Letzte Kosten</h2>
+      <div id="dashboardRecentCosts"></div>
+    </div>
+  </div>
+</section>
+
+
+<section id="rollen" class="tabpage hidden leader-only">
+  <div class="grid two">
+    <div class="card">
+      <h2>Passwort-/PIN-Verwaltung</h2>
+      <label>Neues Reiseleiter-Passwort</label>
+      <input id="leaderPinNew" type="password" inputmode="numeric">
+      <div class="actions"><button onclick="setLeaderPin()">Reiseleiter-Passwort speichern</button></div>
+    </div>
+    <div class="card">
+      <h2>Teilnehmer-PIN festlegen</h2>
+      <div class="row">
+        <div><label>Teilnehmer</label><select id="pinParticipant"></select></div>
+        <div><label>PIN</label><input id="pinParticipantNew" type="password" inputmode="numeric"></div>
+      </div>
+      <div class="actions"><button onclick="setParticipantPin()">Teilnehmer-PIN speichern</button></div>
+    </div>
+  </div>
+</section>
+
+<section id="teilnehmer" class="tabpage hidden">
+  <div class="grid two">
+    <div class="card leader-only"><h2>Teilnehmer anlegen</h2><form id="personForm"><label>Anzeigename</label><input id="personName" required><div class="actions"><button class="ok">Hinzufügen</button></div></form></div>
+    <div class="card"><h2>Teilnehmerliste</h2><div id="peopleList"></div></div>
+  </div>
+</section>
+
+<section id="profil" class="tabpage hidden">
+  <div class="grid two">
+    <div class="card"><h2>Stammdaten</h2><form id="profileForm">
+      <label>Teilnehmer</label><select id="profilePerson"></select>
+      <div class="row"><div><label>Vorname</label><input id="profileFirstName"></div><div><label>Name</label><input id="profileLastName"></div></div>
+      <div class="row"><div><label>Geburtsdatum</label><input id="profileBirthDate" type="date"></div><div><label>Ausweisnummer</label><input id="profileIdNumber"></div></div>
+      <div class="row"><div><label>Mobilfunknummer</label><input id="profileMobile"></div><div><label>E-Mail</label><input id="profileEmail" type="email"></div></div>
+      <div class="actions"><button class="ok">Speichern</button></div></form></div>
+    <div class="card leader-only"><h2>Übersicht</h2><div style="overflow:auto"><table id="profileTable"></table></div></div>
+  </div>
+</section>
+
+<section id="kosten" class="tabpage hidden">
+  <div class="grid two">
+    <div class="card leader-only"><h2>Kosten erfassen</h2><form id="costForm">
+      <div class="row3"><div><label>Kategorie</label><select id="costCategory"></select></div><div><label>Betrag</label><input id="costAmount" type="number" step="0.01" min="0" required></div><div><label>Bezahlt von</label><select id="costPaidBy"></select></div></div>
+      <div class="row3">
+        <div><label>Datum</label><input id="costDate" type="date"></div>
+        <div><label>Reiseabschnitt</label><select id="costPhase">
+          <option>Hinfahrt</option>
+          <option>Vorübernachtung</option>
+          <option>Aufenthalt</option>
+          <option>Rückfahrt</option>
+          <option>Heimreise</option>
+          <option>Allgemein</option>
+        </select></div>
+        <div><label>Beschreibung</label><input id="costDescription"></div>
+      </div>
+      <h3>Umlage auf</h3><div id="costParticipants" class="splitbox"></div><div class="actions"><button class="ok">Kosten speichern</button></div>
+    </form></div>
+    <div class="card"><h2>Kostenliste</h2><div style="overflow:auto"><table id="costTable"></table></div></div>
+  </div>
+</section>
+
+<section id="anzahlungen" class="tabpage hidden">
+  <div class="grid two">
+    <div class="card leader-only"><h2>Anzahlung erfassen</h2><form id="depositForm">
+      <div class="row"><div><label>Teilnehmer</label><select id="depositPerson"></select></div><div><label>Datum</label><input id="depositDate" type="date"></div></div>
+      <div class="row3"><div><label>Betrag</label><input id="depositAmount" type="number" step="0.01" min="0" required></div><div><label>Zahlungsart</label><select id="depositMethod"><option>Überweisung</option><option>Barzahlung</option></select></div><div><label>Status</label><select id="depositConfirmed"><option value="true">eingegangen</option><option value="false">angekündigt</option></select></div></div>
+      <label>Notiz</label><input id="depositNote"><div class="actions"><button class="ok">Speichern</button></div></form></div>
+    <div class="card leader-only"><h2>Soll-Anzahlung</h2><label>Pro Teilnehmer</label><input id="depositTarget" type="number" step="0.01"><button onclick="saveDepositTarget()">Soll speichern</button></div>
+  </div>
+  <div class="card"><h2>Reisekasse</h2><div id="cashboxSummary" class="grid three"></div></div>
+  <div class="card"><h2>Zahlungsstatus</h2><div style="overflow:auto"><table id="depositStatusTable"></table></div></div>
+  <div class="card leader-only"><h2>Anzahlungen</h2><div style="overflow:auto"><table id="depositTable"></table></div></div>
+</section>
+
+<section id="fang" class="tabpage hidden">
+  <div class="grid two">
+    <div class="card"><h2>Fang erfassen</h2><form id="catchForm">
+      <div class="row"><div><label>Angler</label><select id="catchPerson"></select></div><div><label>Datum</label><input id="catchDate" type="date"></div></div>
+      <div class="fish-card"><div id="fishVisualPreview" class="fish-photo"></div><div><strong id="fishVisualName">Fischart</strong><div class="small">Bildvorschau zur besseren Darstellung</div></div></div>
+      <div class="row3"><div><label>Fischart</label><select id="catchSpecies"></select></div><div><label>Anzahl</label><input id="catchCount" type="number" min="1" value="1"></div><div><label>Gewicht kg</label><input id="catchWeight" type="number" step="0.01"></div></div>
+      <div class="row3"><div><label>Länge cm</label><input id="catchLength" type="number"></div><div><label>Filet kg</label><input id="catchFillet" type="number" step="0.01"></div><div><label>Tiefe m</label><input id="catchDepth" type="number"></div></div>
+      <div class="row"><div><label>Angelmethode</label><select id="catchMethod"></select></div><div><label>Köder / Montage</label><input id="catchBait"></div></div>
+      <div class="row"><div><label>GPS Lat</label><input id="catchLat" type="number" step="0.000001"></div><div><label>GPS Lng</label><input id="catchLng" type="number" step="0.000001"></div></div>
+      <label>Notiz</label><input id="catchNote"><div class="actions"><button type="button" class="secondary" onclick="useGps()">GPS übernehmen</button><button class="ok">Fang speichern</button></div>
+    </form></div>
+    <div class="card"><h2>Fangstatistik</h2><div id="catchStats"></div></div>
+  </div>
+  <div class="card"><h2>Fangliste</h2><div style="overflow:auto"><table id="catchTable"></table></div></div>
+</section>
+
+
+<section id="karte" class="tabpage hidden">
+  <div class="grid two">
+    <div class="card">
+      <h2>Fangkarte / Seekarten</h2>
+      <div class="notice">Fänge mit GPS-Koordinaten werden hier als Fangpunkte dargestellt. Für die nautische Ansicht kann jeder Punkt direkt in OpenSeaMap geöffnet werden.</div>
+      <div id="catchMapBox" class="mapbox"></div>
+      <div class="actions">
+        <button onclick="openAllCatchPoints()">Alle Fangpunkte als Liste öffnen</button>
+        <button class="secondary" onclick="downloadCatchPointsCsv()">Fangpunkte CSV</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Fangpunkte</h2>
+      <div style="overflow:auto"><table id="catchPointTable"></table></div>
+    </div>
+  </div>
+</section>
+
+<section id="doku" class="tabpage hidden">
+  <div class="grid two">
+    <div class="card leader-only">
+      <h2>Reisedokumentation bearbeiten</h2>
+      <form id="docForm">
+        <label>Reisezeitraum</label><input id="docPeriod" placeholder="z. B. 12.05.–24.05.2027">
+        <label>Ziel / Unterkunft</label><input id="docDestination" placeholder="z. B. Hitra, Haus am Fjord">
+        <label>Wetter / Bedingungen</label><textarea id="docWeather"></textarea>
+        <label>Besondere Ereignisse</label><textarea id="docHighlights" class="big"></textarea>
+        <label>Ausfahrten / Revier</label><textarea id="docArea"></textarea>
+        <label>Zoll / Ausfuhr / Hinweise</label><textarea id="docCustoms"></textarea>
+        <label>Abschlussnotiz</label><textarea id="docSummary" class="big"></textarea>
+        <div class="actions"><button class="ok">Reisedokumentation speichern</button></div>
+      </form>
+    </div>
+    <div class="card">
+      <h2>Reisebericht Vorschau</h2>
+      <div id="docPreview" class="report-preview"></div>
+      <div class="actions">
+        <button onclick="window.print()">Als PDF drucken</button>
+        <button class="secondary" onclick="downloadTravelReportHtml()">Reisebericht HTML</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="meinbereich" class="tabpage hidden">
+  <div class="grid three">
+    <div class="card"><div class="small">Meine Fänge</div><div id="myFishCount" class="total">0</div></div>
+    <div class="card"><div class="small">Meine Anzahlungen</div><div id="myDeposits" class="total">0 €</div></div>
+    <div class="card"><div class="small">Meine Restschuld / Guthaben</div><div id="myBalance" class="total">0 €</div></div>
+  </div>
+  <div class="grid two">
+    <div class="card"><h2>Meine Fangstatistik</h2><div id="myCatchStats"></div></div>
+    <div class="card"><h2>Meine Abrechnung</h2><div id="mySettlement"></div></div>
+  </div>
+</section>
+
+<section id="backup" class="tabpage hidden">
+  <div class="grid two">
+    <div class="card">
+      <h2>Backup-System</h2>
+      <div class="notice">Die App speichert automatisch lokal im Browser. Zusätzlich kannst du manuelle Sicherungen erstellen und Wiederherstellungspunkte verwalten.</div>
+      <div class="actions">
+        <button onclick="createRestorePoint()">Wiederherstellungspunkt erstellen</button>
+        <button class="secondary" onclick="resetDemoTripV193()">Lokale Daten neu laden</button>
+        <button class="secondary" onclick="downloadJson()">Komplettes JSON-Backup herunterladen</button>
+        <button class="danger" onclick="clearRestorePoints()">Wiederherstellungspunkte löschen</button>
+      </div>
+      <h3>Wiederherstellungspunkte</h3>
+      <div id="restorePointList"></div>
+    </div>
+    <div class="card">
+      <h2>Push / OneSignal</h2>
+      <label>OneSignal App-ID</label><input id="oneSignalAppId" placeholder="App-ID aus OneSignal">
+      <label>Cloudflare Worker URL optional</label><input id="pushWorkerUrl" placeholder="https://...workers.dev">
+      <div class="actions">
+        <button onclick="savePushConfig()">Push-Konfiguration speichern</button>
+        <button class="secondary" onclick="loadOneSignal()">OneSignal laden</button>
+        <button onclick="localNotify()">Lokale Testmeldung</button>
+      </div>
+      <label>Push-Titel</label><input id="pushTitle" placeholder="z. B. Wetterwarnung">
+      <label>Push-Nachricht</label><textarea id="pushMessage"></textarea>
+      <div class="actions"><button onclick="sendPreparedPush()">Push vorbereiten/senden</button></div>
+      <div id="pushStatus" class="small"></div>
+    </div>
+  </div>
+</section>
+
+
+<section id="news" class="tabpage hidden">
+  <div class="grid two">
+    <div class="card leader-only"><h2>Neuigkeit</h2><form id="newsForm"><label>Titel</label><input id="newsTitle" required><label>Nachricht</label><textarea id="newsText"></textarea><div class="actions"><button class="ok">Speichern</button><button type="button" onclick="localNotify()">Lokaler Push-Test</button></div></form></div>
+    <div class="card"><h2>Push-Hinweis</h2><div class="notice">Echte Gruppen-Pushs brauchen GitHub Pages + OneSignal + optional Worker. Diese stabile Testversion speichert Neuigkeiten lokal und kann lokale Browsermeldungen testen.</div></div>
+  </div>
+  <div class="card"><h2>Neuigkeiten</h2><div id="newsList"></div></div>
+</section>
+
+<section id="abrechnung" class="tabpage hidden">
+  <div class="grid three"><div class="card"><div class="small">Gesamtkosten</div><div id="totalCosts" class="total"></div></div><div class="card"><div class="small">Anzahlungen</div><div id="totalDeposits" class="total"></div></div><div class="card"><div class="small">Fänge</div><div id="totalCatches" class="total"></div></div></div>
+  <div class="card"><h2>Abrechnung</h2><div style="overflow:auto"><table id="settlementTable"></table></div></div>
+  <div class="card"><h2>Zahlungsanweisungen</h2><div id="paymentInstructions"></div></div>
+  <div class="card"><h2>Kosten nach Reiseabschnitt</h2><div style="overflow:auto"><table id="phaseTable"></table></div></div>
+</section>
+
+<section id="export" class="tabpage hidden">
+  <div class="card"><h2>Export / Import</h2><div class="actions"><button onclick="downloadJson()">Alle Daten JSON</button><button onclick="downloadCsv()">Abrechnung CSV</button><button onclick="window.print()">PDF/Drucken</button></div><label>JSON importieren</label><input id="importFile" type="file" accept=".json,application/json"></div>
+</section>
+</main>
+
+<script>
+const CATEGORIES=["Fähren","Maut","Boote","Häuser","Kraftstoff Auto","Kraftstoff Boot","Zwischenübernachtungen","Angellizenzen","Guiding","Verpflegung","Getränke","Zoll","Sonstiges"];
+const FISH=["Dorsch","Seelachs","Seehecht","Pollack","Heilbutt","Rotbarsch","Leng","Lumb","Steinbeißer","Makrele","Schellfisch","Dornhai","Wolfsbarsch"];
+const METHODS=["Überbeißer","Pilker","Gummifisch","Mak","Paternoster","Köderfisch am Pilker","Köderfisch mit Schleppblei","Sonstiges"];
+const STORAGE="angelreiseManagerV18";
+
+
+// ===== Supabase Cloud-Synchronisation Auto/Echtzeit =====
+const SUPABASE_URL = "https://lsxrqefsvigjnrozlhqw.supabase.co";
+const SUPABASE_KEY = "sb_publishable_yG5qJum9JDcUr94So-lCew_1g00bTLD";
+const CLOUD_LOCAL_ID = "angelreise-manager-cloud-state";
+let supabaseClient = null;
+let cloudReady = false;
+let cloudSaving = false;
+let cloudSaveTimer = null;
+let cloudChannel = null;
+let cloudLastRemoteSavedAt = "";
+let cloudLastLocalSaveAt = 0;
+let cloudLoadInProgress = false;
+let cloudAutoStarted = false;
+let cloudHasLoadedOnce = false;
+let cloudAllowInitialUpload = false;
+
+function cloudStatus(text, cls="cloud-warn"){
+  const el=document.getElementById("cloudSyncStatus");
+  if(el) el.innerHTML = `<span class="${cls}">Cloud: ${esc(text)}</span>`;
+}
+function realtimeStatus(text, cls="cloud-warn"){
+  const el=document.getElementById("cloudRealtimeStatus");
+  if(el) el.innerHTML = `<span class="${cls}">Live-Sync: ${esc(text)}</span>`;
+}
+
+function initSupabase(){
+  try{
+    if(!window.supabase){cloudStatus("SDK lädt noch", "cloud-warn");return false;}
+    if(!supabaseClient) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    cloudReady = true;
+    cloudStatus("verbunden", "cloud-ok");
+    return true;
+  }catch(e){
+    console.error("Supabase init fehlgeschlagen", e);
+    cloudStatus("nicht verbunden", "cloud-bad");
+    return false;
+  }
+}
+
+function cloudPayload(){
+  const t = trip();
+  return {
+    name: t.name || "Angelreise Manager",
+    startdatum: t.startDate || null,
+    local_id: CLOUD_LOCAL_ID,
+    leader_pass: t.auth?.leaderPin || "",
+    deposit_target: Number(t.depositTarget)||0,
+    documentation: {
+      app_store: store,
+      saved_at: new Date().toISOString(),
+      device_time: Date.now()
+    },
+    push_config: t.pushConfig || {}
+  };
+}
+
+function applyCloudStore(incoming, savedAt=""){
+  if(!incoming || !Array.isArray(incoming.trips) || !incoming.trips.length) return false;
+  store = incoming;
+  store.trips.forEach(ensure);
+  currentTripId = store.currentTripId || store.trips[0].id;
+  localStorage.setItem(STORAGE, JSON.stringify(store));
+  cloudLastRemoteSavedAt = savedAt || cloudLastRemoteSavedAt;
+  cloudHasLoadedOnce = true;
+  render();
+  return true;
+}
+
+async function cloudLoadNow(options={}){
+  const silent = !!options.silent;
+  const force = !!options.force;
+  try{
+    if(cloudLoadInProgress) return;
+    if(!cloudReady && !initSupabase()) return;
+    cloudLoadInProgress = true;
+    if(!silent) cloudStatus("lade ...", "cloud-warn");
+    const {data,error} = await supabaseClient
+      .from("reisen")
+      .select("documentation,local_id,name,startdatum,leader_pass,deposit_target,push_config")
+      .eq("local_id", CLOUD_LOCAL_ID)
+      .maybeSingle();
+    if(error) throw error;
+    const savedAt = data?.documentation?.saved_at || "";
+    if(data && data.documentation && data.documentation.app_store){
+      if(!force && savedAt && savedAt === cloudLastRemoteSavedAt){
+        if(!silent) cloudStatus("bereits aktuell", "cloud-ok");
+        return;
+      }
+      const ok = applyCloudStore(data.documentation.app_store, savedAt);
+      if(ok){
+        cloudStatus("geladen " + new Date().toLocaleTimeString("de-DE"), "cloud-ok");
+        return;
+      }
+    }
+    if(!silent) cloudStatus("keine Cloud-Daten gefunden – bitte bewusst Cloud speichern klicken", "cloud-warn");
+    return;
+  }catch(e){
+    console.error("Cloud laden fehlgeschlagen", e);
+    cloudStatus("Laden fehlgeschlagen: " + (e.message||e), "cloud-bad");
+  }finally{
+    cloudLoadInProgress = false;
+  }
+}
+
+async function cloudSaveNow(options={}){
+  const reason = options.reason || "manual";
+  if(reason==="manual") cloudAllowInitialUpload = true;
+  try{
+    if(cloudSaving) return;
+    if(!cloudReady && !initSupabase()) return;
+    cloudSaving = true;
+    cloudStatus(reason==="auto" ? "autospeichere ..." : "speichere ...", "cloud-warn");
+    const payload = cloudPayload();
+    const {error} = await supabaseClient
+      .from("reisen")
+      .upsert(payload, {onConflict:"local_id"});
+    if(error) throw error;
+    cloudLastRemoteSavedAt = payload.documentation.saved_at;
+    cloudLastLocalSaveAt = Date.now();
+    cloudStatus("gespeichert " + new Date().toLocaleTimeString("de-DE"), "cloud-ok");
+  }catch(e){
+    console.error("Cloud speichern fehlgeschlagen", e);
+    cloudStatus("Speichern fehlgeschlagen: " + (e.message||e), "cloud-bad");
+  }finally{
+    cloudSaving = false;
+  }
+}
+
+function scheduleCloudSave(){
+  if(!cloudReady) return;
+  if(!cloudHasLoadedOnce && !cloudAllowInitialUpload){ cloudStatus("Auto-Speichern wartet auf Cloud-Laden", "cloud-warn"); return; }
+  clearTimeout(cloudSaveTimer);
+  cloudSaveTimer = setTimeout(()=>cloudSaveNow({reason:"auto"}), 900);
+}
+
+function subscribeCloudRealtime(){
+  if(!cloudReady || !supabaseClient) return;
+  try{
+    if(cloudChannel) supabaseClient.removeChannel(cloudChannel);
+    cloudChannel = supabaseClient
+      .channel("angelreise-manager-sync")
+      .on("postgres_changes",
+        {event:"*", schema:"public", table:"reisen", filter:`local_id=eq.${CLOUD_LOCAL_ID}`},
+        payload=>{
+          const savedAt = payload?.new?.documentation?.saved_at || "";
+          if(savedAt && savedAt === cloudLastRemoteSavedAt) return;
+          // Eigene Schreibvorgänge nicht sofort zurückladen.
+          if(Date.now() - cloudLastLocalSaveAt < 1500) return;
+          realtimeStatus("Änderung erkannt – lade neu ...", "cloud-warn");
+          cloudLoadNow({silent:true, force:true}).then(()=>realtimeStatus("aktiv", "cloud-ok"));
+        }
+      )
+      .subscribe(status=>{
+        if(status==="SUBSCRIBED") realtimeStatus("aktiv", "cloud-ok");
+        else if(status==="CHANNEL_ERROR") realtimeStatus("Realtime nicht verfügbar – Polling aktiv", "cloud-warn");
+        else realtimeStatus(status, "cloud-warn");
+      });
+  }catch(e){
+    console.error("Realtime konnte nicht gestartet werden", e);
+    realtimeStatus("Polling aktiv", "cloud-warn");
+  }
+}
+
+function startCloudSync(){
+  if(cloudAutoStarted) return;
+  const forceCloudLoad = localStorage.getItem("angelreiseForceCloudLoad")==="1";
+  if(forceCloudLoad) localStorage.removeItem("angelreiseForceCloudLoad");
+  cloudAutoStarted = true;
+  if(!initSupabase()) return;
+  cloudLoadNow({force:true});
+  subscribeCloudRealtime();
+  // Fallback: alle 20 Sekunden leise prüfen, falls Realtime nicht aktiv ist.
+  setInterval(()=>cloudLoadNow({silent:true}), 20000);
+}
+
+
+function uid(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
+function euro(n){return (Number(n)||0).toLocaleString("de-DE",{style:"currency",currency:"EUR"})}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function val(id){const e=document.getElementById(id);return e?e.value:""} function setVal(id,v){const e=document.getElementById(id); if(e)e.value=v}
+
+var store=loadStore();
+var currentTripId=store.currentTripId;
+function trip(){
+  if(!window.store || !store.trips || !store.trips.length){
+    store = loadStore();
+    currentTripId = store.currentTripId;
+  }
+  return store.trips.find(t=>t.id===currentTripId)||store.trips[0];
+}
+function ensure(t){t.people??=[];t.costs??=[];t.deposits??=[];t.catches??=[];t.news??=[];t.depositTarget??=0;t.auth??={leaderPin:"0000",participantPins:{}};t.documentation??={period:"",destination:"",weather:"",highlights:"",area:"",customs:"",summary:""};t.pushConfig??={oneSignalAppId:"",pushWorkerUrl:""};t.startDate??="";t.people.forEach((p,i)=>{p.loginCode??=makeLoginCode(p,i);});return t}
+function save(){store.currentTripId=currentTripId;localStorage.setItem(STORAGE,JSON.stringify(store));autoBackup();render();scheduleCloudSave()}
+function loadStore(){
+  try{
+    const raw=localStorage.getItem(STORAGE);
+    if(raw){
+      const s=JSON.parse(raw);
+      if(s && Array.isArray(s.trips) && s.trips.length){s.trips.forEach(ensure); if(!s.currentTripId || !s.trips.some(t=>t.id===s.currentTripId)) s.currentTripId=s.trips[0].id; return s;}
+    }
+    for(const key of LEGACY_STORAGE_KEYS){
+      const legacy=localStorage.getItem(key);
+      if(legacy){
+        const s=JSON.parse(legacy);
+        if(s && Array.isArray(s.trips) && s.trips.length){s.trips.forEach(ensure); if(!s.currentTripId || !s.trips.some(t=>t.id===s.currentTripId)) s.currentTripId=s.trips[0].id; localStorage.setItem(STORAGE, JSON.stringify(s)); return s;}
+      }
+    }
+  }catch(e){console.warn("Speicher konnte nicht gelesen werden", e)}
+  return {currentTripId:"live2027",trips:[ensure({
+    id:"live2027",
+    name:"Norwegen Angelreise",
+    startDate:"",
+    people:[],
+    costs:[],
+    deposits:[],
+    catches:[],
+    news:[],
+    depositTarget:0,
+    auth:{leaderPin:"Ida12102020",participantPins:{}},
+    documentation:{period:"",destination:"",weather:"",highlights:"",area:"",customs:"",summary:""},
+    pushConfig:{oneSignalAppId:"",pushWorkerUrl:""}
+  })]};
+}
+function session(){
+  try{
+    const raw=localStorage.getItem("angelreiseSessionV18") || localStorage.getItem("angelreiseSessionV15") || "{}";
+    const s=JSON.parse(raw);
+    return (s && typeof s==="object") ? s : {};
+  }catch{return {}}
+}
+function setSession(s){localStorage.setItem("angelreiseSessionV18",JSON.stringify(s||{}))}
+function isLeader(){return session().role==="leader"} function activePerson(){return session().role==="participant"?session().personId:""}
+
+function showTab(id,btn){
+  const page=document.getElementById(id);
+  if(!page){console.warn("Tab nicht gefunden",id);return;}
+  document.querySelectorAll(".tabpage").forEach(x=>x.classList.add("hidden"));
+  page.classList.remove("hidden");
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  if(btn)btn.classList.add("active");
+  render();
+}
+function fillSelect(id,arr,first="Bitte auswählen"){document.getElementById(id).innerHTML=`<option value="">${first}</option>`+arr.map(x=>`<option value="${x.id??x}">${esc(x.name??x)}</option>`).join("")}
+
+function init(){
+  const costCategoryEl=document.getElementById("costCategory"); if(costCategoryEl) costCategoryEl.innerHTML=CATEGORIES.map(x=>`<option>${x}</option>`).join("");
+  const catchSpeciesEl=document.getElementById("catchSpecies"); if(catchSpeciesEl) catchSpeciesEl.innerHTML=FISH.map(x=>`<option>${x}</option>`).join("");
+  const catchMethodEl=document.getElementById("catchMethod"); if(catchMethodEl) catchMethodEl.innerHTML=METHODS.map(x=>`<option>${x}</option>`).join("");
+  ["costDate","depositDate","catchDate"].forEach(id=>{const e=document.getElementById(id); if(e)e.valueAsDate=new Date()});
+  document.getElementById("personForm").addEventListener("submit",e=>{e.preventDefault(); if(!isLeader())return alert("Nur Reiseleiter."); const name=val("personName").trim(); if(!name)return; const p={id:uid(),name,firstName:"",lastName:name,birthDate:"",idNumber:"",mobile:"",email:""};p.loginCode=makeLoginCode(p,trip().people.length);trip().people.push(p);setVal("personName","");save()});
+  document.getElementById("profileForm").addEventListener("submit",e=>{e.preventDefault();saveProfile()});
+  document.getElementById("costForm").addEventListener("submit",e=>{e.preventDefault();addCost()});
+  document.getElementById("depositForm").addEventListener("submit",e=>{e.preventDefault();addDeposit()});
+  document.getElementById("catchForm").addEventListener("submit",e=>{e.preventDefault();addCatch()});
+  document.getElementById("newsForm").addEventListener("submit",e=>{e.preventDefault();addNews()});
+  document.getElementById("importFile").addEventListener("change",importJson);
+  document.getElementById("profilePerson").addEventListener("change",loadProfile);
+  const speciesSel=document.getElementById("catchSpecies"); if(speciesSel) speciesSel.addEventListener("change",renderFishPreview);
+  const docForm=document.getElementById("docForm"); if(docForm) docForm.addEventListener("submit",e=>{e.preventDefault();saveDocumentation();});
+  render();
+}
+
+function render(){
+  const t=ensure(trip()); document.getElementById("appTitle").textContent=t.name; document.title=t.name+" – Angelreise Manager";
+  document.body.classList.toggle("role-participant",session().role==="participant");
+  document.body.classList.toggle("role-leader",session().role==="leader");
+  document.getElementById("loginStatusText").innerHTML=session().role==="leader"?"Angemeldet als <strong>Reiseleiter</strong>":session().role==="participant"?`Angemeldet als <strong>${esc(personName(session().personId))}</strong>`:"Nicht angemeldet";
+  renderTrips(); renderLogin(); renderPeople(); renderProfile(); renderCosts(); renderDeposits(); renderCatches(); renderNews(); renderSettlement();
+}
+function renderTrips(){
+  const s=document.getElementById("tripSelect");
+  s.innerHTML=store.trips.map(t=>`<option value="${t.id}" ${t.id===currentTripId?"selected":""}>${esc(t.name)}</option>`).join("");
+  s.onchange=()=>{currentTripId=s.value;save()};
+  setVal("tripName",trip().name);
+  const tripNameEl=document.getElementById("tripName");
+  if(tripNameEl) tripNameEl.disabled=!isLeader();
+  const canEdit=isLeader();
+  document.querySelectorAll('button[onclick="renameTrip()"],button[onclick="newTrip()"]').forEach(b=>{b.style.display=canEdit?"":"none";});
+}
+function newTrip(){if(!isLeader())return alert("Nur der Reiseleiter darf eine neue Reise anlegen.");const name=prompt("Name der Reise","Norwegen "+new Date().getFullYear());if(!name)return;const id=uid();store.trips.push(ensure({id,name,people:[],costs:[],deposits:[],catches:[],news:[]}));currentTripId=id;save()}
+function renameTrip(){if(!isLeader())return alert("Nur der Reiseleiter darf den Reisenamen ändern.");const n=val("tripName").trim();if(n){trip().name=n;save()}}
+
+function normalizeLoginPart(s){return String(s||"").trim().replace(/[^A-Za-zÄÖÜäöüß]/g,"");}
+function makeLoginCode(p,index=0){
+  const first=normalizeLoginPart(p.firstName || (p.name||"").split(" ")[0] || "T");
+  const last=normalizeLoginPart(p.lastName || (p.name||"").split(" ").slice(1).join(" ") || String(index+1).padStart(2,"0"));
+  const raw=(first.slice(0,2)+last.slice(0,2)) || ("T"+String(index+1).padStart(2,"0"));
+  return raw.charAt(0).toUpperCase()+raw.slice(1,2).toLowerCase()+raw.charAt(2).toUpperCase()+raw.slice(3,4).toLowerCase();
+}
+function loginDisplayName(p,index=0){return p.loginCode || makeLoginCode(p,index);}
+
+function personName(id){const p=trip().people.find(p=>p.id===id);return p?(p.firstName||p.lastName?[p.firstName,p.lastName].filter(Boolean).join(" "):p.name):"Unbekannt"}
+
+function renderLogin(){
+  const pinSel=document.getElementById("pinParticipant");
+  if(pinSel) fillSelect("pinParticipant",trip().people);
+}
+
+
+// ===== V18.4 Wiederhergestellte Kernfunktionen =====
+function renderPeople(){
+  const el=document.getElementById("peopleList");
+  if(!el) return;
+  el.innerHTML=trip().people.length?trip().people.map(p=>`<div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:8px 0"><strong>${esc(personName(p.id))}</strong>${isLeader()?`<button class="danger" onclick="deletePerson('${p.id}')">Löschen</button>`:""}</div>`).join(""):'<p class="small">Keine Teilnehmer.</p>';
+}
+function deletePerson(id){
+  if(!confirm("Teilnehmer löschen?"))return;
+  const t=trip();
+  t.people=t.people.filter(p=>p.id!==id);
+  t.costs=t.costs.filter(c=>c.paidBy!==id).map(c=>({...c,participants:(c.participants||[]).filter(x=>x!==id)}));
+  t.deposits=t.deposits.filter(d=>d.personId!==id);
+  t.catches=t.catches.filter(c=>c.personId!==id);
+  save();
+}
+function renderProfile(){
+  const people=session().role==="participant"?trip().people.filter(p=>p.id===session().personId):trip().people;
+  fillSelect("profilePerson",people);
+  const sel=document.getElementById("profilePerson");
+  if(sel){
+    if(session().role==="participant"){setVal("profilePerson",session().personId);sel.disabled=true}else sel.disabled=false;
+  }
+  renderProfileTable();
+}
+function loadProfile(){
+  const p=trip().people.find(p=>p.id===val("profilePerson"));
+  if(!p)return;
+  setVal("profileFirstName",p.firstName||"");
+  setVal("profileLastName",p.lastName||p.name||"");
+  setVal("profileBirthDate",p.birthDate||"");
+  setVal("profileIdNumber",p.idNumber||"");
+  setVal("profileMobile",p.mobile||"");
+  setVal("profileEmail",p.email||"");
+}
+function saveProfile(){
+  const pid=val("profilePerson"),p=trip().people.find(p=>p.id===pid);
+  if(!p)return alert("Teilnehmer wählen");
+  if(session().role==="participant"&&session().personId!==pid)return alert("Nur eigene Daten");
+  p.firstName=val("profileFirstName").trim();
+  p.lastName=val("profileLastName").trim();
+  p.birthDate=val("profileBirthDate");
+  p.idNumber=val("profileIdNumber").trim();
+  p.mobile=val("profileMobile").trim();
+  p.email=val("profileEmail").trim();
+  p.name=[p.firstName,p.lastName].filter(Boolean).join(" ")||p.name;
+  p.loginCode=makeLoginCode(p,trip().people.findIndex(x=>x.id===p.id));
+  save();
+  alert("Gespeichert");
+}
+function renderProfileTable(){
+  const el=document.getElementById("profileTable");
+  if(!el)return;
+  el.innerHTML=trip().people.length?`<thead><tr><th>Name</th><th>Login-Kürzel</th><th>Geburt</th><th>Ausweis</th><th>Mobil</th><th>Mail</th></tr></thead><tbody>`+trip().people.map(p=>`<tr><td>${esc(personName(p.id))}</td><td><strong>${esc(p.loginCode||makeLoginCode(p))}</strong></td><td>${esc(p.birthDate||"")}</td><td>${esc(p.idNumber||"")}</td><td>${esc(p.mobile||"")}</td><td>${esc(p.email||"")}</td></tr>`).join("")+"</tbody>":'<tr><td class="small">Keine Daten.</td></tr>';
+}
+function renderCosts(){
+  fillSelect("costPaidBy",trip().people);
+  const cp=document.getElementById("costParticipants");
+  if(cp) cp.innerHTML=trip().people.map(p=>`<label class="check"><input type="checkbox" class="costPart" value="${p.id}" checked> ${esc(personName(p.id))}</label>`).join("");
+  const el=document.getElementById("costTable");
+  if(!el)return;
+  el.innerHTML=trip().costs.length?`<thead><tr><th>Datum</th><th>Abschnitt</th><th>Kategorie</th><th>Text</th><th>Zahler</th><th class="right">Betrag</th><th>Umlage</th></tr></thead><tbody>`+
+    trip().costs.map(c=>`<tr><td>${c.date||""}</td><td>${esc(c.phase||"Allgemein")}</td><td>${esc(c.category)}</td><td>${esc(c.description||"")}</td><td>${esc(personName(c.paidBy))}</td><td class="right">${euro(c.amount)}</td><td>${(c.participants||[]).map(id=>`<span class="pill">${esc(personName(id))}</span>`).join("")}</td></tr>`).join("")+"</tbody>":'<tr><td class="small">Keine Kosten.</td></tr>';
+}
+function addCost(){
+  if(!isLeader())return alert("Nur Reiseleiter");
+  const parts=[...document.querySelectorAll(".costPart:checked")].map(x=>x.value);
+  if(!val("costPaidBy")||!parts.length)return alert("Zahler/Umlage fehlt");
+  trip().costs.push({id:uid(),category:val("costCategory"),phase:val("costPhase")||"Allgemein",amount:Number(val("costAmount"))||0,paidBy:val("costPaidBy"),date:val("costDate"),description:val("costDescription"),participants:parts,status:"bezahlt"});
+  setVal("costAmount","");setVal("costDescription","");save();
+}
+function renderDeposits(){
+  fillSelect("depositPerson",trip().people);
+  setVal("depositTarget",trip().depositTarget||"");
+  const rows=calc();
+  const totalCosts=trip().costs.reduce((a,c)=>a+(Number(c.amount)||0),0);
+  const totalDeposits=trip().deposits.filter(d=>d.confirmed).reduce((a,d)=>a+(Number(d.amount)||0),0);
+  const cash=document.getElementById("cashboxSummary");
+  if(cash) cash.innerHTML=`<div class="card"><div class="small">Gesamtkosten</div><div class="total">${euro(totalCosts)}</div></div><div class="card"><div class="small">Eingegangene Anzahlungen</div><div class="total">${euro(totalDeposits)}</div></div><div class="card"><div class="small">Offene Restkosten</div><div class="total">${euro(Math.max(0,totalCosts-totalDeposits))}</div></div>`;
+  const st=document.getElementById("depositStatusTable");
+  if(st) st.innerHTML=rows.length?`<thead><tr><th>Status</th><th>Teilnehmer</th><th class="right">Soll-Anzahlung</th><th class="right">Ist-Anzahlung</th><th class="right">Kostenanteil</th><th class="right">Restschuld nach Anzahlung</th><th>Bewertung</th></tr></thead><tbody>`+
+    rows.map(r=>{const rest=Math.max(0,r.share-r.deposit);const light=rest<=0&&r.share>0?"🟢":r.deposit>0?"🟡":"🔴";const label=rest<=0&&r.share>0?"Kostenanteil gedeckt":r.deposit>0?"Teilzahlung vorhanden":"keine eingegangene Anzahlung";return `<tr><td style="font-size:22px">${light}</td><td>${esc(r.name)}</td><td class="right">${euro(trip().depositTarget||0)}</td><td class="right">${euro(r.deposit)}</td><td class="right">${euro(r.share)}</td><td class="right"><strong>${euro(rest)}</strong></td><td>${label}</td></tr>`}).join("")+"</tbody>":'<tr><td class="small">Keine Teilnehmer.</td></tr>';
+  const dt=document.getElementById("depositTable");
+  if(dt) dt.innerHTML=trip().deposits.length?`<thead><tr><th>Datum</th><th>Teilnehmer</th><th>Zahlart</th><th>Status</th><th>Notiz</th><th class="right">Betrag</th></tr></thead><tbody>`+
+    trip().deposits.map(d=>`<tr><td>${d.date||""}</td><td>${esc(personName(d.personId))}</td><td>${esc(d.method)}</td><td>${d.confirmed?"eingegangen":"angekündigt"}</td><td>${esc(d.note||"")}</td><td class="right">${euro(d.amount)}</td></tr>`).join("")+"</tbody>":'<tr><td class="small">Keine Anzahlungen.</td></tr>';
+}
+function addDeposit(){
+  if(!isLeader())return alert("Nur Reiseleiter");
+  trip().deposits.push({id:uid(),personId:val("depositPerson"),date:val("depositDate"),amount:Number(val("depositAmount"))||0,method:val("depositMethod"),confirmed:val("depositConfirmed")==="true",note:val("depositNote")});
+  setVal("depositAmount","");setVal("depositNote","");save();
+}
+function saveDepositTarget(){if(!isLeader())return alert("Nur Reiseleiter");trip().depositTarget=Number(val("depositTarget"))||0;save();}
+function renderCatches(){
+  fillSelect("catchPerson",session().role==="participant"?trip().people.filter(p=>p.id===session().personId):trip().people);
+  const cp=document.getElementById("catchPerson");
+  if(cp){if(session().role==="participant"){setVal("catchPerson",session().personId);cp.disabled=true}else cp.disabled=false;}
+  const rows=trip().catches;
+  const table=document.getElementById("catchTable");
+  if(table) table.innerHTML=rows.length?`<thead><tr><th>Datum</th><th>Angler</th><th>Fisch</th><th>Methode</th><th class="right">Anzahl</th><th class="right">kg</th><th class="right">cm</th><th>GPS</th></tr></thead><tbody>`+
+    rows.map(c=>`<tr><td>${c.date||""}</td><td>${esc(personName(c.personId))}</td><td>${esc(c.species)}</td><td>${esc(c.method)}</td><td class="right">${c.count}</td><td class="right">${c.weight||""}</td><td class="right">${c.length||""}</td><td>${c.lat&&c.lng?`<a target="_blank" href="https://maps.google.com/?q=${c.lat},${c.lng}">Karte</a>`:""}</td></tr>`).join("")+"</tbody>":'<tr><td class="small">Keine Fänge.</td></tr>';
+  const count=rows.reduce((a,c)=>a+(Number(c.count)||0),0),kg=rows.reduce((a,c)=>a+(Number(c.weight)||0),0);
+  const stats=document.getElementById("catchStats");
+  if(stats) stats.innerHTML=`<span class="badge">Fische: <strong>${count}</strong></span><span class="badge">Gewicht: <strong>${kg.toLocaleString("de-DE")} kg</strong></span>`;
+}
+function addCatch(){
+  const pid=val("catchPerson");
+  if(!pid)return alert("Angler wählen");
+  if(session().role==="participant"&&pid!==session().personId)return alert("Nur eigene Fänge");
+  trip().catches.push({id:uid(),personId:pid,date:val("catchDate"),species:val("catchSpecies"),count:Number(val("catchCount"))||1,weight:Number(val("catchWeight"))||0,length:Number(val("catchLength"))||0,fillet:Number(val("catchFillet"))||0,depth:Number(val("catchDepth"))||0,method:val("catchMethod"),bait:val("catchBait"),lat:Number(val("catchLat"))||0,lng:Number(val("catchLng"))||0,note:val("catchNote")});
+  ["catchWeight","catchLength","catchFillet","catchDepth","catchBait","catchLat","catchLng","catchNote"].forEach(id=>setVal(id,""));setVal("catchCount",1);save();
+}
+function useGps(){
+  if(!navigator.geolocation)return alert("GPS nicht unterstützt");
+  navigator.geolocation.getCurrentPosition(p=>{setVal("catchLat",p.coords.latitude.toFixed(6));setVal("catchLng",p.coords.longitude.toFixed(6))},()=>alert("GPS konnte nicht gelesen werden"));
+}
+function addNews(){
+  if(!isLeader())return alert("Nur Reiseleiter");
+  trip().news.unshift({id:uid(),date:new Date().toISOString(),title:val("newsTitle"),text:val("newsText")});
+  setVal("newsTitle","");setVal("newsText","");save();
+}
+function renderNews(){
+  const list=document.getElementById("newsList");
+  if(list) list.innerHTML=trip().news.length?trip().news.map(n=>`<div class="card"><div class="small">${new Date(n.date).toLocaleString("de-DE")}</div><h3>${esc(n.title)}</h3><p>${esc(n.text)}</p></div>`).join(""):'<p class="small">Keine Neuigkeiten.</p>';
+}
+function localNotify(){
+  if(!("Notification"in window))return alert("Nicht unterstützt");
+  Notification.requestPermission().then(p=>{if(p==="granted")new Notification("Angelreise Manager",{body:"Testbenachrichtigung"})});
+}
+function calc(){
+  const rows=trip().people.map(p=>({id:p.id,name:personName(p.id),paid:0,share:0,deposit:0,balance:0,restDebt:0,credit:0,status:""}));
+  const by=Object.fromEntries(rows.map(r=>[r.id,r]));
+  trip().costs.forEach(c=>{if(by[c.paidBy])by[c.paidBy].paid+=Number(c.amount)||0;const ps=(c.participants||[]).filter(id=>by[id]);const sh=ps.length?(Number(c.amount)||0)/ps.length:0;ps.forEach(id=>by[id].share+=sh)});
+  trip().deposits.filter(d=>d.confirmed).forEach(d=>{if(by[d.personId])by[d.personId].deposit+=Number(d.amount)||0});
+  rows.forEach(r=>{r.restDebt=r.share-r.deposit;r.balance=r.paid+r.deposit-r.share;r.credit=Math.max(0,r.balance);if(Math.abs(r.balance)<0.005)r.status="Ausgeglichen";else if(r.balance>0)r.status="Bekommt Geld zurück";else r.status="Muss noch zahlen";});
+  return rows;
+}
+function paymentPlan(rows){
+  const debtors=rows.filter(r=>r.balance<-0.005).map(r=>({name:r.name,amount:-r.balance}));
+  const creditors=rows.filter(r=>r.balance>0.005).map(r=>({name:r.name,amount:r.balance}));
+  const payments=[];let i=0,j=0;
+  while(i<debtors.length&&j<creditors.length){const amount=Math.min(debtors[i].amount,creditors[j].amount);payments.push({from:debtors[i].name,to:creditors[j].name,amount});debtors[i].amount-=amount;creditors[j].amount-=amount;if(debtors[i].amount<0.01)i++;if(creditors[j].amount<0.01)j++;}
+  return payments;
+}
+function renderPaymentInstructions(rows){
+  const el=document.getElementById("paymentInstructions");
+  if(!el)return;
+  const payments=paymentPlan(rows);
+  el.innerHTML=payments.length?`<table><thead><tr><th>Von</th><th>An</th><th class="right">Betrag</th></tr></thead><tbody>`+payments.map(p=>`<tr><td>${esc(p.from)}</td><td>${esc(p.to)}</td><td class="right"><strong>${euro(p.amount)}</strong></td></tr>`).join("")+"</tbody></table>":'<p class="small">Keine Ausgleichszahlungen notwendig.</p>';
+}
+function renderPhaseTable(){
+  const el=document.getElementById("phaseTable");
+  if(!el)return;
+  const sums={};trip().costs.forEach(c=>{const key=c.phase||"Allgemein";sums[key]=(sums[key]||0)+(Number(c.amount)||0)});
+  const rows=Object.entries(sums).sort((a,b)=>b[1]-a[1]);
+  el.innerHTML=rows.length?`<thead><tr><th>Reiseabschnitt</th><th class="right">Summe</th></tr></thead><tbody>`+rows.map(([k,v])=>`<tr><td>${esc(k)}</td><td class="right">${euro(v)}</td></tr>`).join("")+"</tbody>":'<tr><td class="small">Keine Kostenabschnitte vorhanden.</td></tr>';
+}
+function renderSettlement(){
+  const rows=calc();
+  const total=trip().costs.reduce((a,c)=>a+(Number(c.amount)||0),0);
+  const deps=trip().deposits.filter(d=>d.confirmed).reduce((a,d)=>a+(Number(d.amount)||0),0);
+  const catches=trip().catches.reduce((a,c)=>a+(Number(c.count)||0),0);
+  document.getElementById("totalCosts").textContent=euro(total);
+  document.getElementById("totalDeposits").textContent=euro(deps);
+  document.getElementById("totalCatches").textContent=catches;
+  document.getElementById("settlementTable").innerHTML=rows.length?`<thead><tr><th>Teilnehmer</th><th class="right">Auslagen</th><th class="right">Anzahlungen</th><th class="right">Kostenanteil</th><th class="right">Restschuld nach Anzahlung</th><th class="right">Saldo</th><th>Bedeutung</th></tr></thead><tbody>`+rows.map(r=>{const rest=Math.max(0,r.share-r.deposit);return `<tr><td>${esc(r.name)}</td><td class="right">${euro(r.paid)}</td><td class="right">${euro(r.deposit)}</td><td class="right">${euro(r.share)}</td><td class="right">${euro(rest)}</td><td class="right"><strong>${euro(r.balance)}</strong></td><td>${esc(r.status)}</td></tr>`}).join("")+"</tbody>":'<tr><td class="small">Keine Daten.</td></tr>';
+  renderPaymentInstructions(rows);renderPhaseTable();
+}
+function downloadJson(){
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(store,null,2)],{type:"application/json"}));a.download="angelreise-manager-daten.json";a.click();URL.revokeObjectURL(a.href);
+}
+function downloadCsv(){
+  const rows=calc();
+  const csv="Teilnehmer;Auslagen;Anzahlung;Kostenanteil;Restschuld nach Anzahlung;Saldo;Bedeutung\n"+rows.map(r=>[r.name,r.paid.toFixed(2),r.deposit.toFixed(2),r.share.toFixed(2),Math.max(0,r.share-r.deposit).toFixed(2),r.balance.toFixed(2),r.status].map(x=>`"${String(x).replaceAll('"','""')}"`).join(";")).join("\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="abrechnung.csv";a.click();URL.revokeObjectURL(a.href);
+}
+async function importJson(e){
+  const f=e.target.files[0];if(!f)return;
+  try{const data=JSON.parse(await f.text());if(!data.trips)throw new Error();store=data;store.trips.forEach(ensure);currentTripId=store.currentTripId||store.trips[0].id;save()}catch{alert("Import fehlgeschlagen")}
+}
+
+
+// ===== V20 Live: Login-Sicherheit =====
+function loginAttempts(){
+  try{return JSON.parse(localStorage.getItem("angelreiseLoginAttemptsV20")||'{"count":0,"lockedUntil":0}')}catch{return {count:0,lockedUntil:0}}
+}
+function resetLoginAttempts(){localStorage.removeItem("angelreiseLoginAttemptsV20");}
+function registerFailedLogin(){
+  const a=loginAttempts();
+  a.count=(a.count||0)+1;
+  if(a.count>=5){a.lockedUntil=Date.now()+5*60*1000;a.count=0;}
+  localStorage.setItem("angelreiseLoginAttemptsV20",JSON.stringify(a));
+}
+function loginLockedMessage(){
+  const a=loginAttempts();
+  if(a.lockedUntil && Date.now()<a.lockedUntil){
+    const min=Math.ceil((a.lockedUntil-Date.now())/60000);
+    return "Zu viele Fehlversuche. Bitte in ca. "+min+" Minute(n) erneut versuchen.";
+  }
+  return "";
+}
+
+// ===== V16: Login-Seite vor App-Funktionen =====
+function isLoggedInGate(){
+  const s = session();
+  return s && (s.role === "leader" || s.role === "participant");
+}
+
+function renderLoginGate(){
+  if(!window.store || !store.trips || !store.trips.length){store=loadStore();currentTripId=store.currentTripId;}
+  const logged = isLoggedInGate();
+  document.body.classList.toggle("app-authenticated", logged);
+
+  const gate = document.getElementById("loginGate");
+  const shell = document.getElementById("appShell");
+  if(gate) gate.style.display = logged ? "none" : "flex";
+  if(shell) shell.classList.toggle("hidden-app", !logged);
+
+  const tripSel = document.getElementById("gateTripSelect");
+  if(tripSel){
+    tripSel.innerHTML = store.trips.map(t=>`<option value="${t.id}" ${t.id===currentTripId?"selected":""}>${esc(t.name)}</option>`).join("");
+    tripSel.onchange = () => {
+      currentTripId = tripSel.value;
+      store.currentTripId = currentTripId;
+      localStorage.setItem(STORAGE, JSON.stringify(store));
+      renderLoginGate();
+    };
+  }
+
+  const roleSel = document.getElementById("gateLoginRole");
+  const partSel = document.getElementById("gateLoginParticipant");
+  if(partSel){
+    const t = trip();
+    partSel.innerHTML = '<option value="">Bitte auswählen</option>' + t.people.map((p,i)=>`<option value="${p.id}">${esc(loginDisplayName(p,i))}</option>`).join("");
+    partSel.disabled = roleSel && roleSel.value !== "participant";
+  }
+  if(roleSel && !roleSel.dataset.boundGate){
+    roleSel.dataset.boundGate = "1";
+    roleSel.addEventListener("change", renderLoginGate);
+  }
+}
+
+function gateLogin(){
+  const msg=document.getElementById("gateLoginMessage");
+  const locked=loginLockedMessage();
+  if(locked){if(msg)msg.textContent=locked;return;}
+  const role=val("gateLoginRole");
+  const pin=val("gateLoginPin").trim();
+  const t=trip();
+
+  if(role==="leader"){
+    if(pin!==t.auth.leaderPin){
+      registerFailedLogin();
+      if(msg)msg.textContent="Falsches Reiseleiter-Passwort.";
+      return;
+    }
+    resetLoginAttempts();
+    setSession({role:"leader"});
+  }else{
+    const pid=val("gateLoginParticipant");
+    if(!pid){if(msg)msg.textContent="Bitte Teilnehmer auswählen.";return;}
+    if(pin!==t.auth.participantPins[pid]){
+      registerFailedLogin();
+      if(msg)msg.textContent="Falsche oder noch nicht gesetzte Teilnehmer-PIN.";
+      return;
+    }
+    resetLoginAttempts();
+    setSession({role:"participant",personId:pid});
+  }
+
+  setVal("gateLoginPin","");
+  if(msg)msg.textContent="";
+  document.body.classList.add("app-authenticated");
+  const gate=document.getElementById("loginGate");
+  const shell=document.getElementById("appShell");
+  if(gate)gate.style.display="none";
+  if(shell)shell.classList.remove("hidden-app");
+  render();
+  const tab=document.querySelector(".tabs .tab[onclick*=\"dashboard\"]")||document.querySelector(".tabs .tab[onclick*=\"teilnehmer\"]")||document.querySelector(".tabs .tab");
+  if(tab){
+    const oc=tab.getAttribute("onclick")||"";
+    const m=oc.match(/showTab\('([^']+)'/);
+    showTab(m?m[1]:"dashboard",tab);
+  }
+  startCloudSync();
+}
+
+function gateLogout(){
+  setSession({});
+  document.body.classList.remove("app-authenticated");
+  const gate = document.getElementById("loginGate");
+  const shell = document.getElementById("appShell");
+  if(gate) gate.style.display = "flex";
+  if(shell) shell.classList.add("hidden-app");
+  render();
+}
+
+const renderOriginalV16 = render;
+render = function(){
+  renderOriginalV16();
+  renderLoginGate();
+};
+
+
+// ===== V17 Premium UI Dashboard =====
+function renderPremiumDashboard(){
+  const t = trip();
+  const dashDate = document.getElementById("dashDate");
+  if(dashDate) dashDate.textContent = new Date().toLocaleDateString("de-DE");
+  const dashPeople = document.getElementById("dashPeople");
+  if(dashPeople) dashPeople.textContent = t.people.length;
+  const fish = t.catches.reduce((a,c)=>a+(Number(c.count)||0),0);
+  const dashFish = document.getElementById("dashFish");
+  if(dashFish) dashFish.textContent = fish;
+  const costs = t.costs.reduce((a,c)=>a+(Number(c.amount)||0),0);
+  const dashCosts = document.getElementById("dashCosts");
+  if(dashCosts) dashCosts.textContent = euro(costs);
+}
+const renderOriginalV17 = render;
+render = function(){
+  renderOriginalV17();
+  renderPremiumDashboard();
+};
+
+
+
+
+// ===== V18.5 Rollenfunktionen =====
+function setLeaderPin(){
+  if(!isLeader()) return alert("Nur Reiseleiter");
+  const p=val("leaderPinNew").trim();
+  if(p.length<4) return alert("Mindestens 8 Zeichen");
+  trip().auth.leaderPin=p;
+  setVal("leaderPinNew","");
+  save();
+}
+function setParticipantPin(){
+  if(!isLeader()) return alert("Nur Reiseleiter");
+  const pid=val("pinParticipant");
+  const pin=val("pinParticipantNew").trim();
+  if(!pid || pin.length<4) return alert("Teilnehmer und Passwort eingeben");
+  trip().auth.participantPins[pid]=pin;
+  setVal("pinParticipantNew","");
+  save();
+}
+
+
+
+// ===== V19 Erweiterungen: Fischbilder, Reisedoku, Karte, Push, Backup =====
+
+// ===== V19.2 echte eingebettete Fischbilder =====
+function fishSvg(species){
+  const data={
+    "Dorsch":{body:"#9ca3af",back:"#64748b",belly:"#e5e7eb",spots:"#374151",shape:"cod"},
+    "Seelachs":{body:"#64748b",back:"#1f2937",belly:"#d1d5db",spots:"#334155",shape:"saithe"},
+    "Seehecht":{body:"#94a3b8",back:"#475569",belly:"#e2e8f0",spots:"#334155",shape:"hake"},
+    "Pollack":{body:"#b6a36a",back:"#6b5f2a",belly:"#f4e8b6",spots:"#475569",shape:"pollack"},
+    "Heilbutt":{body:"#7c6f64",back:"#4b4038",belly:"#d6d3d1",spots:"#292524",shape:"flat"},
+    "Rotbarsch":{body:"#ef4444",back:"#991b1b",belly:"#fecaca",spots:"#7f1d1d",shape:"rock"},
+    "Leng":{body:"#a8a29e",back:"#57534e",belly:"#e7e5e4",spots:"#44403c",shape:"long"},
+    "Lumb":{body:"#78716c",back:"#3f3f46",belly:"#d6d3d1",spots:"#292524",shape:"tusk"},
+    "Steinbeißer":{body:"#9ca3af",back:"#4b5563",belly:"#e5e7eb",spots:"#1f2937",shape:"wolf"},
+    "Makrele":{body:"#60a5fa",back:"#1d4ed8",belly:"#dbeafe",spots:"#0f172a",shape:"mackerel"},
+    "Schellfisch":{body:"#cbd5e1",back:"#64748b",belly:"#f8fafc",spots:"#111827",shape:"haddock"},
+    "Dornhai":{body:"#94a3b8",back:"#334155",belly:"#e2e8f0",spots:"#475569",shape:"shark"},
+    "Wolfsbarsch":{body:"#cbd5e1",back:"#475569",belly:"#f8fafc",spots:"#334155",shape:"bass"}
+  };
+  const f=data[species]||data["Dorsch"];
+  const id=("fish"+(species||"fisch")).replace(/[^a-zA-Z0-9]/g,"");
+  if(f.shape==="flat"){
+    return `<svg viewBox="0 0 220 130" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${species}">
+      <defs><linearGradient id="g${id}" x1="0" x2="1"><stop stop-color="${f.back}"/><stop offset=".65" stop-color="${f.body}"/><stop offset="1" stop-color="${f.belly}"/></linearGradient></defs>
+      <rect width="220" height="130" fill="rgba(2,6,23,.15)"/>
+      <ellipse cx="105" cy="66" rx="78" ry="38" fill="url(#g${id})"/>
+      <path d="M38 66 L8 45 L15 68 L8 91 Z" fill="${f.back}"/>
+      <path d="M165 50 L211 28 L195 64 L211 100 L164 82 Z" fill="${f.back}"/>
+      <circle cx="130" cy="52" r="5" fill="#020617"/><circle cx="147" cy="58" r="5" fill="#020617"/>
+      <path d="M70 86 C95 103 132 101 162 84" fill="none" stroke="${f.belly}" stroke-width="4" opacity=".55"/>
+      <g opacity=".55"><circle cx="88" cy="52" r="3" fill="${f.spots}"/><circle cx="105" cy="75" r="3" fill="${f.spots}"/><circle cx="62" cy="68" r="3" fill="${f.spots}"/><circle cx="140" cy="80" r="3" fill="${f.spots}"/></g>
+    </svg>`;
+  }
+  const long = ["Leng","Lumb","Seehecht"].includes(species);
+  const shark = f.shape==="shark";
+  const mackerel = f.shape==="mackerel";
+  return `<svg viewBox="0 0 240 130" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${species}">
+    <defs>
+      <linearGradient id="b${id}" x1="0" x2="0" y1="0" y2="1">
+        <stop stop-color="${f.back}"/><stop offset=".52" stop-color="${f.body}"/><stop offset="1" stop-color="${f.belly}"/>
+      </linearGradient>
+      <filter id="s${id}" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#020617" flood-opacity=".35"/></filter>
+    </defs>
+    <rect width="240" height="130" fill="rgba(2,6,23,.15)"/>
+    <g filter="url(#s${id})">
+      <path d="${long?'M34 68 C70 28 170 31 215 65 C178 101 74 103 34 68Z':'M38 66 C76 20 160 22 207 63 C164 104 78 105 38 66Z'}" fill="url(#b${id})"/>
+      <path d="M36 66 L10 42 L18 66 L10 90 Z" fill="${f.back}"/>
+      <path d="M188 63 L232 35 L218 64 L232 94 Z" fill="${f.back}"/>
+      <path d="M86 38 C105 25 137 24 154 38" fill="none" stroke="${f.back}" stroke-width="8" stroke-linecap="round"/>
+      <path d="M86 93 C116 106 153 100 178 83" fill="none" stroke="${f.belly}" stroke-width="5" opacity=".55"/>
+      <circle cx="173" cy="55" r="5.8" fill="#020617"/><circle cx="175" cy="53" r="2" fill="#f8fafc"/>
+      <path d="M183 72 C171 76 161 76 151 73" fill="none" stroke="#111827" stroke-width="2" opacity=".65"/>
+      <path d="M96 48 L80 76 L110 73 Z" fill="${f.back}" opacity=".78"/>
+      <path d="M128 37 L139 18 L150 40 Z" fill="${f.back}" opacity=".85"/>
+      ${mackerel?'<g stroke="#0f172a" stroke-width="3" opacity=".7"><path d="M70 43 l22 21"/><path d="M91 37 l24 27"/><path d="M114 36 l25 29"/><path d="M138 40 l20 24"/></g>':`<g opacity=".52"><circle cx="84" cy="57" r="3" fill="${f.spots}"/><circle cx="105" cy="67" r="2.5" fill="${f.spots}"/><circle cx="130" cy="55" r="2.7" fill="${f.spots}"/><circle cx="148" cy="76" r="2.6" fill="${f.spots}"/></g>`}
+      ${shark?'<path d="M125 37 L145 5 L154 43 Z" fill="#334155"/><path d="M42 65 C56 58 63 58 76 63" fill="none" stroke="#0f172a" stroke-width="2" opacity=".5"/>':''}
+    </g>
+  </svg>`;
+}
+function fishVisual(species){return fishSvg(species);}
+function fishVisualPlain(species){return fishSvg(species);}
+
+function renderFishPreview(){
+  const species=val("catchSpecies")||"Dorsch";
+  const img=document.getElementById("fishVisualPreview");
+  const name=document.getElementById("fishVisualName");
+  if(img) img.innerHTML=fishVisual(species);
+  if(name) name.textContent=species;
+}
+function renderFishGallery(){
+  const stats=document.getElementById("catchStats");
+  if(!stats) return;
+  const gallery=FISH.map(f=>`<div class="fish-card"><div class="fish-photo">${fishVisual(f)}</div><div><strong>${esc(f)}</strong><div class="small">Zielfisch Norwegen</div></div></div>`).join("");
+  if(!document.getElementById("fishGalleryV19")){
+    stats.insertAdjacentHTML("afterend",`<h3>Fischarten</h3><div id="fishGalleryV19">${gallery}</div>`);
+  } else {
+    document.getElementById("fishGalleryV19").innerHTML=gallery;
+  }
+}
+
+function catchPoints(){return trip().catches.filter(c=>Number(c.lat)&&Number(c.lng));}
+function renderCatchMap(){
+  const box=document.getElementById("catchMapBox");
+  const table=document.getElementById("catchPointTable");
+  const points=catchPoints();
+  if(box){
+    if(!points.length){box.innerHTML='<div style="position:relative;padding:20px">Noch keine GPS-Fangpunkte vorhanden.</div>';}
+    else{
+      const lats=points.map(p=>Number(p.lat)), lngs=points.map(p=>Number(p.lng));
+      const minLat=Math.min(...lats), maxLat=Math.max(...lats), minLng=Math.min(...lngs), maxLng=Math.max(...lngs);
+      const spanLat=Math.max(.0001,maxLat-minLat), spanLng=Math.max(.0001,maxLng-minLng);
+      box.innerHTML=points.map((p,i)=>{
+        const x=10+80*((Number(p.lng)-minLng)/spanLng);
+        const y=85-70*((Number(p.lat)-minLat)/spanLat);
+        return `<div class="map-point" style="left:${x}%;top:${y}%;" title="${esc(p.species)}">${i+1}</div>`;
+      }).join("")+'<div style="position:absolute;left:16px;bottom:14px" class="small">Schematische Übersicht · Seekarte über OpenSeaMap-Link öffnen</div>';
+    }
+  }
+  if(table){
+    table.innerHTML=points.length?`<thead><tr><th>#</th><th>Datum</th><th>Angler</th><th>Fisch</th><th>Methode</th><th>Seekarte</th></tr></thead><tbody>`+
+      points.map((p,i)=>`<tr><td>${i+1}</td><td>${p.date||""}</td><td>${esc(personName(p.personId))}</td><td><span class="map-fish-mini">${fishVisual(p.species)}</span>${esc(p.species)}</td><td>${esc(p.method||"")}</td><td><a target="_blank" href="https://map.openseamap.org/?zoom=11&lat=${p.lat}&lon=${p.lng}">OpenSeaMap</a></td></tr>`).join("")+"</tbody>":
+      '<tr><td class="small">Keine GPS-Fangpunkte vorhanden.</td></tr>';
+  }
+}
+function openAllCatchPoints(){
+  const points=catchPoints();
+  if(!points.length) return alert("Keine Fangpunkte mit GPS vorhanden.");
+  const text=points.map((p,i)=>`${i+1}. ${p.species} ${p.date||""}: https://map.openseamap.org/?zoom=11&lat=${p.lat}&lon=${p.lng}`).join("\n");
+  prompt("Fangpunkte / Seekartenlinks:", text);
+}
+function downloadCatchPointsCsv(){
+  const rows=catchPoints();
+  const csv="Datum;Angler;Fisch;Methode;Latitude;Longitude;OpenSeaMap\n"+rows.map(p=>[p.date||"",personName(p.personId),p.species||"",p.method||"",p.lat,p.lng,`https://map.openseamap.org/?zoom=11&lat=${p.lat}&lon=${p.lng}`].map(x=>`"${String(x).replaceAll('"','""')}"`).join(";")).join("\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="fangpunkte.csv";a.click();URL.revokeObjectURL(a.href);
+}
+
+function loadDocumentationForm(){
+  const d=trip().documentation||{};
+  ["Period","Destination","Weather","Highlights","Area","Customs","Summary"].forEach(k=>setVal("doc"+k,d[k.charAt(0).toLowerCase()+k.slice(1)]||""));
+}
+function saveDocumentation(){
+  trip().documentation={
+    period:val("docPeriod"),destination:val("docDestination"),weather:val("docWeather"),highlights:val("docHighlights"),
+    area:val("docArea"),customs:val("docCustoms"),summary:val("docSummary")
+  };
+  save();
+  alert("Reisedokumentation gespeichert.");
+}
+function renderDocumentation(){
+  const el=document.getElementById("docPreview");
+  if(!el) return;
+  const d=trip().documentation||{};
+  const rows=calc();
+  const totalCosts=trip().costs.reduce((a,c)=>a+(Number(c.amount)||0),0);
+  const fishCount=trip().catches.reduce((a,c)=>a+(Number(c.count)||0),0);
+  el.innerHTML=`<h2>${esc(trip().name)}</h2>
+    <p><strong>Zeitraum:</strong> ${esc(d.period||"-")}<br><strong>Ziel:</strong> ${esc(d.destination||"-")}</p>
+    <h3>Zusammenfassung</h3><p>${esc(d.summary||"Noch keine Abschlussnotiz.")}</p>
+    <h3>Wetter / Bedingungen</h3><p>${esc(d.weather||"-")}</p>
+    <h3>Besondere Ereignisse</h3><p>${esc(d.highlights||"-")}</p>
+    <h3>Revier / Ausfahrten</h3><p>${esc(d.area||"-")}</p>
+    <h3>Zoll / Hinweise</h3><p>${esc(d.customs||"-")}</p>
+    <h3>Kennzahlen</h3><p>Teilnehmer: ${trip().people.length}<br>Fänge: ${fishCount}<br>Gesamtkosten: ${euro(totalCosts)}</p>
+    <h3>Abrechnung</h3><ul>${rows.map(r=>`<li>${esc(r.name)}: ${euro(r.balance)} · ${esc(r.status)}</li>`).join("")}</ul>`;
+}
+function downloadTravelReportHtml(){
+  const content=document.getElementById("docPreview")?.innerHTML||"";
+  const doc=`<!doctype html><html lang="de"><meta charset="utf-8"><title>Angelreise Manager</title><body>${content}</body></html>`;
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([doc],{type:"text/html"}));a.download="reisebericht.html";a.click();URL.revokeObjectURL(a.href);
+}
+
+function currentPersonRow(){const s=session();return s.role==="participant"?calc().find(r=>r.id===s.personId):null;}
+function renderMyArea(){
+  const s=session();
+  const row=currentPersonRow();
+  const myCatches=trip().catches.filter(c=>c.personId===s.personId);
+  const myDeposits=trip().deposits.filter(d=>d.personId===s.personId&&d.confirmed).reduce((a,d)=>a+(Number(d.amount)||0),0);
+  const fish=myCatches.reduce((a,c)=>a+(Number(c.count)||0),0);
+  const setText=(id,txt)=>{const e=document.getElementById(id); if(e)e.textContent=txt;};
+  setText("myFishCount", s.role==="participant"?fish:trip().catches.reduce((a,c)=>a+(Number(c.count)||0),0));
+  setText("myDeposits", s.role==="participant"?euro(myDeposits):euro(trip().deposits.filter(d=>d.confirmed).reduce((a,d)=>a+(Number(d.amount)||0),0)));
+  setText("myBalance", row?euro(row.balance):"Reiseleiter");
+  const stats=document.getElementById("myCatchStats");
+  if(stats) stats.innerHTML=myCatches.length?myCatches.map(c=>`<div class="fish-card"><div class="fish-photo">${fishVisual(c.species)}</div><div><strong>${esc(c.species)}</strong><div class="small">${c.date||""} · ${esc(c.method||"")}</div></div></div>`).join(""):'<p class="small">Als Reiseleiter siehst du hier keine persönliche Teilnehmerstatistik. Teilnehmer sehen ihre eigenen Werte.</p>';
+  const settlement=document.getElementById("mySettlement");
+  if(settlement) settlement.innerHTML=row?`<table><tr><th>Kostenanteil</th><td class="right">${euro(row.share)}</td></tr><tr><th>Anzahlungen</th><td class="right">${euro(row.deposit)}</td></tr><tr><th>Auslagen</th><td class="right">${euro(row.paid)}</td></tr><tr><th>Saldo</th><td class="right"><strong>${euro(row.balance)}</strong></td></tr><tr><th>Status</th><td>${esc(row.status)}</td></tr></table>`:'<p class="small">Bitte als Teilnehmer anmelden, um persönliche Abrechnung zu sehen.</p>';
+}
+
+function autoBackup(){
+  try{
+    const key="angelreiseAutoBackupV19";
+    const last=Number(localStorage.getItem(key+"Time")||0);
+    if(Date.now()-last<60000) return;
+    localStorage.setItem(key, JSON.stringify(store));
+    localStorage.setItem(key+"Time", String(Date.now()));
+  }catch{}
+}
+function restorePoints(){try{return JSON.parse(localStorage.getItem("angelreiseRestorePointsV19")||"[]")}catch{return []}}
+function createRestorePoint(){
+  const points=restorePoints();
+  points.unshift({id:uid(),date:new Date().toISOString(),name:trip().name,data:store});
+  localStorage.setItem("angelreiseRestorePointsV19", JSON.stringify(points.slice(0,10)));
+  renderRestorePoints();
+}
+function restorePoint(id){
+  const p=restorePoints().find(x=>x.id===id);
+  if(!p) return;
+  if(!confirm("Diesen Wiederherstellungspunkt laden? Aktuelle Daten werden überschrieben.")) return;
+  store=p.data;store.trips.forEach(ensure);currentTripId=store.currentTripId||store.trips[0].id;save();
+}
+function clearRestorePoints(){if(confirm("Alle Wiederherstellungspunkte löschen?")){localStorage.removeItem("angelreiseRestorePointsV19");renderRestorePoints();}}
+function renderRestorePoints(){
+  const el=document.getElementById("restorePointList");
+  if(!el) return;
+  const points=restorePoints();
+  el.innerHTML=points.length?points.map(p=>`<div class="fish-card"><div><strong>${esc(p.name)}</strong><div class="small">${new Date(p.date).toLocaleString("de-DE")}</div></div><button onclick="restorePoint('${p.id}')">Laden</button></div>`).join(""):'<p class="small">Noch keine Wiederherstellungspunkte vorhanden.</p>';
+}
+
+function savePushConfig(){
+  trip().pushConfig={oneSignalAppId:val("oneSignalAppId"),pushWorkerUrl:val("pushWorkerUrl")};
+  save();
+  alert("Push-Konfiguration gespeichert.");
+}
+function loadPushConfig(){
+  const c=trip().pushConfig||{};
+  setVal("oneSignalAppId",c.oneSignalAppId||"");
+  setVal("pushWorkerUrl",c.pushWorkerUrl||"");
+  const st=document.getElementById("pushStatus");
+  if(st) st.innerHTML=`HTTPS: ${location.protocol==="https:"||location.hostname==="localhost"?"ja":"nein"} · Notification: ${("Notification" in window)?Notification.permission:"nicht unterstützt"} · App-ID: ${c.oneSignalAppId?"gesetzt":"fehlt"}`;
+}
+function loadOneSignal(){
+  const appId=val("oneSignalAppId")||trip().pushConfig?.oneSignalAppId;
+  if(!appId) return alert("Bitte zuerst OneSignal App-ID eintragen.");
+  if(!window.OneSignalDeferred) return alert("OneSignal SDK ist nicht geladen. Online über HTTPS/GitHub Pages testen.");
+  window.OneSignalDeferred.push(async function(OneSignal){
+    await OneSignal.init({appId});
+  });
+  alert("OneSignal Initialisierung gestartet.");
+}
+async function sendPreparedPush(){
+  if(!isLeader()) return alert("Nur Reiseleiter");
+  const title=val("pushTitle")||"Angelreise Manager";
+  const message=val("pushMessage")||"Neue Nachricht";
+  const worker=val("pushWorkerUrl")||trip().pushConfig?.pushWorkerUrl;
+  if(worker){
+    try{
+      const res=await fetch(worker,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({title,message,trip:trip().name})});
+      alert(res.ok?"Push an Worker übergeben.":"Worker meldet Fehler.");
+    }catch{alert("Worker nicht erreichbar.");}
+    return;
+  }
+  prompt("Ohne Worker diese Vorlage im OneSignal Dashboard senden:",`Titel: ${title}\nNachricht: ${message}`);
+}
+
+const renderOriginalV19 = render;
+render = function(){
+  renderOriginalV19();
+  renderFishPreview();
+  renderFishGallery();
+  renderCatchMap();
+  loadDocumentationForm();
+  renderDocumentation();
+  renderMyArea();
+  renderRestorePoints();
+  loadPushConfig();
+};
+
+
+// ===== V19.1 Dashboard =====
+function saveTripStartDate(){
+  if(!isLeader()) return alert("Nur der Reiseleiter darf das Abreisedatum ändern.");
+  trip().startDate=val("tripStartDate");
+  save();
+}
+function daysUntil(dateStr){
+  if(!dateStr) return null;
+  const today=new Date(); today.setHours(0,0,0,0);
+  const d=new Date(dateStr+"T00:00:00");
+  return Math.ceil((d-today)/86400000);
+}
+function goDashboardTab(id){
+  const tab=[...document.querySelectorAll(".tab")].find(b=>(b.getAttribute("onclick")||"").includes("'" + id + "'"));
+  if(tab) showTab(id,tab);
+}
+function renderDashboardFull(){
+  const t=trip();
+  setVal("tripStartDate",t.startDate||"");
+  const startEl=document.getElementById("tripStartDate");
+  if(startEl) startEl.disabled=!isLeader();
+  const hint=document.getElementById("tripStartDateHint");
+  if(hint) hint.textContent=isLeader()?"Reiseleiter können das Abreisedatum ändern.":"Nur der Reiseleiter darf das Abreisedatum ändern.";
+  const rows=calc();
+  const totalCosts=t.costs.reduce((a,c)=>a+(Number(c.amount)||0),0);
+  const deposits=t.deposits.filter(d=>d.confirmed).reduce((a,d)=>a+(Number(d.amount)||0),0);
+  const fishCount=t.catches.reduce((a,c)=>a+(Number(c.count)||0),0);
+  const open=Math.max(0,totalCosts-deposits);
+  const pct=totalCosts>0?Math.min(100,Math.round((deposits/totalCosts)*100)):0;
+  const set=(id,v)=>{const e=document.getElementById(id); if(e)e.textContent=v;};
+  set("dashParticipantsFull",t.people.length);
+  set("dashCatchesFull",fishCount);
+  set("dashTotalCostsFull",euro(totalCosts));
+  set("dashDepositsFull",euro(deposits));
+  set("dashOpenCostsFull",euro(open));
+  const bar=document.getElementById("dashPaymentProgress"); if(bar) bar.style.width=pct+"%";
+  const du=daysUntil(t.startDate);
+  set("dashCountdown",du===null?"kein Datum":du<0?"gestartet":du===0?"Heute":du+" Tage");
+
+  const checklist=[
+    {ok:t.people.length>0,text:"Teilnehmer angelegt"},
+    {ok:t.costs.length>0,text:"Kosten erfasst"},
+    {ok:t.deposits.some(d=>d.confirmed),text:"Anzahlungen eingegangen"},
+    {ok:t.catches.length>0,text:"Fänge erfasst"},
+    {ok:catchPoints().length>0,text:"GPS-Fangpunkte vorhanden"},
+    {ok:!!(t.documentation&&t.documentation.summary),text:"Reisedokumentation begonnen"},
+    {ok:!!(t.pushConfig&&t.pushConfig.oneSignalAppId),text:"Push App-ID eingetragen"}
+  ];
+  const chk=document.getElementById("dashboardChecklist");
+  if(chk) chk.innerHTML=checklist.map(x=>`<div class="timeline-item"><div class="timeline-dot" style="background:${x.ok?'#22c55e':'#f59e0b'}"></div><div><strong>${x.ok?'Erledigt':'Offen'}</strong><div class="small">${esc(x.text)}</div></div></div>`).join("");
+
+  const byAngler={};
+  t.catches.forEach(c=>{byAngler[c.personId]=(byAngler[c.personId]||0)+(Number(c.count)||0)});
+  const top=Object.entries(byAngler).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const topEl=document.getElementById("dashboardTopAnglers");
+  if(topEl) topEl.innerHTML=top.length?top.map(([id,n],i)=>`<div class="rank-row"><div class="rank-left"><div class="rank-badge">${i+1}</div><div><strong>${esc(personName(id))}</strong><div class="small">Fänge gesamt</div></div></div><strong>${n}</strong></div>`).join(""):'<p class="small">Noch keine Fänge erfasst.</p>';
+
+  const big=t.catches.filter(c=>Number(c.weight)||Number(c.length)).sort((a,b)=>(Number(b.weight)||0)-(Number(a.weight)||0)||(Number(b.length)||0)-(Number(a.length)||0)).slice(0,5);
+  const bigEl=document.getElementById("dashboardBiggestFish");
+  if(bigEl) bigEl.innerHTML=big.length?big.map((c,i)=>`<div class="rank-row"><div class="rank-left"><div class="fish-photo">${fishVisual(c.species)}</div><div><strong>${esc(c.species)}</strong><div class="small">${esc(personName(c.personId))} · ${c.date||""}</div></div></div><strong>${c.weight?c.weight+" kg":c.length+" cm"}</strong></div>`).join(""):'<p class="small">Noch keine Gewichte oder Längen erfasst.</p>';
+
+  const news=document.getElementById("dashboardNews");
+  if(news) news.innerHTML=t.news.length?t.news.slice(0,4).map(n=>`<div class="timeline-item"><div class="timeline-dot"></div><div><strong>${esc(n.title)}</strong><div class="small">${new Date(n.date).toLocaleString("de-DE")}</div><div>${esc(n.text||"")}</div></div></div>`).join(""):'<p class="small">Noch keine Neuigkeiten.</p>';
+
+  const costs=document.getElementById("dashboardRecentCosts");
+  if(costs) costs.innerHTML=t.costs.length?t.costs.slice(-5).reverse().map(c=>`<div class="rank-row"><div><strong>${esc(c.category)}</strong><div class="small">${esc(c.phase||"Allgemein")} · ${esc(c.description||"")}</div></div><strong>${euro(c.amount)}</strong></div>`).join(""):'<p class="small">Noch keine Kosten.</p>';
+}
+const renderOriginalDashboardV191 = render;
+render = function(){
+  renderOriginalDashboardV191();
+  renderDashboardFull();
+};
+
+
+// ===== V19.3 Lokale Daten neu laden =====
+function resetDemoTripV193(){
+  if(!confirm("Lokale Daten neu laden? Lokale App-Daten werden durch die vorbereitete Testreise ersetzt.")) return;
+  localStorage.removeItem(STORAGE);
+  localStorage.removeItem("angelreiseSessionV18");
+  localStorage.removeItem("angelreiseSessionV15");
+  location.reload();
+}
+
+
+// ===== V19.7 Startfix / robuste lokale Daten =====
+window.addEventListener("error", function(e){
+  const msg = "Startfehler: " + (e.message || "Unbekannter Fehler");
+  console.error(msg, e.error || e);
+  const box=document.getElementById("gateLoginMessage");
+  if(box) box.textContent=msg + " – bitte Lokale Daten neu laden.";
+});
+
+
+function resetAppStartupV197(){
+  if(!confirm("Lokale Gerätedaten neu laden? Die Cloud-Daten bleiben erhalten.")) return;
+  localStorage.setItem("angelreiseForceCloudLoad","1");
+  ["angelreiseManagerV18","angelreiseManagerV15","angelreiseSessionV18","angelreiseSessionV15","angelreiseRestorePointsV19","angelreiseAutoBackupV19","angelreiseAutoBackupV19Time","angelreiseLoginAttemptsV20"].forEach(k=>localStorage.removeItem(k));
+  location.reload();
+}
+
+
+
+try{init();renderLoginGate();setTimeout(startCloudSync,900);}catch(e){console.error(e);const box=document.getElementById('gateLoginMessage');if(box)box.textContent='Startfehler: '+e.message+' – bitte Lokale Daten neu laden.';}
+
+</script>
+<script>
+if("serviceWorker" in navigator && (location.protocol==="https:" || location.hostname==="localhost")){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));
+}
+</script>
+
+</body>
+</html>
