@@ -1,0 +1,17 @@
+Angelreise Manager v1.0.0
+
+Erste produktive Version.
+
+Highlights:
+- Reiseverwaltung
+- Teilnehmerverwaltung
+- Reiseleiter- und Teilnehmer-Login
+- Kosten, Anzahlungen und Abrechnung
+- Fangerfassung mit GPS und Bildern
+- Fangkarte
+- Dashboard
+- Reisedokumentation
+- Cloud-Synchronisation
+- Datenbank speichern/laden
+
+Status: Produktiv
