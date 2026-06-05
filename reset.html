@@ -1,0 +1,16 @@
+<!doctype html><html lang="de"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Angelreise Manager – Cache löschen</title>
+<body style="font-family:system-ui;background:#07111f;color:white;padding:24px">
+<h1>Angelreise Manager</h1><p>Alte App-Versionen werden entfernt...</p><pre id="log"></pre>
+<script>
+const log=t=>document.getElementById('log').textContent+=t+"\n";
+(async()=>{
+ try{
+  if('serviceWorker' in navigator){const regs=await navigator.serviceWorker.getRegistrations();log('Service Worker: '+regs.length);for(const r of regs)await r.unregister();}
+  if(window.caches){const keys=await caches.keys();log('Caches: '+keys.join(', '));for(const k of keys)await caches.delete(k);}
+  localStorage.setItem('angelreise_current_build','db-laden-logincode-fix-2026-06-05');
+  log('Fertig. App wird neu geöffnet...');
+  setTimeout(()=>location.href='./index.html?fresh='+Date.now(),800);
+ }catch(e){log('Fehler: '+e.message);}
+})();
+</script></body></html>
